@@ -1,0 +1,35 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: cs5296-consumer
+  rabbitmq:
+    host: ${RABBITMQ_HOST:rabbitmq.rabbitmq.svc.cluster.local}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:admin}
+    password: ${RABBITMQ_PASS:cs5296-demo}
+    listener:
+      simple:
+        prefetch: 1
+        concurrency: 1
+        max-concurrency: 1
+
+consumer:
+  queue: ${CONSUMER_QUEUE:baseline-queue}
+  process-ms: ${CONSUMER_PROCESS_MS:200}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: always
+  metrics:
+    tags:
+      application: ${spring.application.name}
+      queue: ${consumer.queue}
