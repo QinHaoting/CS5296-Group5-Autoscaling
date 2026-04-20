@@ -1,0 +1,42 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: consumer-scaledobject
+  namespace: keda
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: consumer
+  minReplicaCount: 1
+  maxReplicaCount: 10
+  pollingInterval: 5    # seconds between metric checks
+  cooldownPeriod: 60    # seconds without activation before scaling to min
+  triggers:
+    - type: rabbitmq
+      metadata:
+        protocol: amqp
+        queueName: keda-queue
+        mode: QueueLength
+        value: "100"
+      authenticationRef:
+        name: keda-rabbitmq-auth
+  advanced:
+    horizontalPodAutoscalerConfig:
+      behavior:
+        scaleUp:
+          stabilizationWindowSeconds: 0
+          policies:
+            - type: Percent
+              value: 100
+              periodSeconds: 15
+            - type: Pods
+              value: 4
+              periodSeconds: 15
+          selectPolicy: Max
+        scaleDown:
+          stabilizationWindowSeconds: 60
+          policies:
+            - type: Percent
+              value: 50
+              periodSeconds: 60

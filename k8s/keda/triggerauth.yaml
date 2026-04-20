@@ -1,0 +1,22 @@
+# KEDA needs a way to authenticate against the RabbitMQ management API so it
+# can read queue length. We store the full AMQP URL in a Secret and reference
+# it from a TriggerAuthentication object.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: keda-rabbitmq-secret
+  namespace: keda
+type: Opaque
+stringData:
+  host: amqp://admin:cs5296-demo@rabbitmq.rabbitmq.svc.cluster.local:5672/
+---
+apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+metadata:
+  name: keda-rabbitmq-auth
+  namespace: keda
+spec:
+  secretTargetRef:
+    - parameter: host
+      name: keda-rabbitmq-secret
+      key: host
