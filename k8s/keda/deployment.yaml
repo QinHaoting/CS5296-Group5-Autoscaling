@@ -25,7 +25,7 @@ spec:
       containers:
         - name: consumer
           # Update this to your DockerHub path after pushing the image.
-          image: CHANGEME/cs5296-consumer:v1.0
+          image: htasteqin/cs5296-consumer:v1.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
