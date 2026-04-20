@@ -88,7 +88,7 @@ install_keda() {
 deploy_common() {
   say "Applying namespaces + RabbitMQ..."
   kubectl apply -f "$REPO_ROOT/k8s/infra/"
-  kubectl -n rabbitmq rollout status statefulset/rabbitmq --timeout=180s
+  kubectl -n rabbitmq rollout status statefulset/rabbitmq --timeout=600s
 }
 
 main() {
