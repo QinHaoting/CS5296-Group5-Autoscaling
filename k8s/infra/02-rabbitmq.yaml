@@ -71,21 +71,21 @@ spec:
               cpu: 200m
               memory: 384Mi
             limits:
-              cpu: 500m
-              memory: 768Mi
+              cpu: 1000m
+              memory: 1Gi
           readinessProbe:
-            exec:
-              command: ["rabbitmq-diagnostics", "-q", "ping"]
-            initialDelaySeconds: 30
-            periodSeconds: 15
-            timeoutSeconds: 10
+            tcpSocket:
+              port: 5672
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 3
             failureThreshold: 6
           livenessProbe:
-            exec:
-              command: ["rabbitmq-diagnostics", "-q", "status"]
-            initialDelaySeconds: 90
+            tcpSocket:
+              port: 5672
+            initialDelaySeconds: 60
             periodSeconds: 30
-            timeoutSeconds: 15
+            timeoutSeconds: 5
             failureThreshold: 5
           volumeMounts:
             - name: config
