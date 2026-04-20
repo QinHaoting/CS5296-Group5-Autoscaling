@@ -1,0 +1,21 @@
+# Burst traffic pattern: the workload used in the main experiment.
+#
+# Phase 1: warm-up baseline (very low rate for 10 s) so the consumer settles
+#          into its initial replica count before the burst arrives.
+# Phase 2: BURST! 10 s at 1000 msg/s -> 10 000 messages total. This is the
+#          "flash crowd" we are measuring reaction latency against.
+# Phase 3: silence. The rate drops to zero so the queue can drain. We keep
+#          sampling for long enough that the consumer also has a chance to
+#          scale back down.
+name: burst
+description: 10-second burst of 10000 messages, then 180 seconds of silence
+phases:
+  - duration_sec: 10
+    rate_per_sec: 5
+    payload_bytes: 256
+  - duration_sec: 10
+    rate_per_sec: 1000
+    payload_bytes: 256
+  - duration_sec: 180
+    rate_per_sec: 0
+    payload_bytes: 256

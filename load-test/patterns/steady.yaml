@@ -1,0 +1,15 @@
+# Optional steady-load pattern: useful as a sanity check to confirm both
+# systems behave the same under a constant rate. Not required for the main
+# MVP results but handy for reviewers.
+name: steady
+description: constant 200 msg/s for 120 seconds
+phases:
+  - duration_sec: 10
+    rate_per_sec: 5
+    payload_bytes: 256
+  - duration_sec: 120
+    rate_per_sec: 200
+    payload_bytes: 256
+  - duration_sec: 60
+    rate_per_sec: 0
+    payload_bytes: 256
