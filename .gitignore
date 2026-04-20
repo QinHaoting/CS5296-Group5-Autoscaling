@@ -1,0 +1,87 @@
+# ==========================================
+# Secrets & local configuration
+# ==========================================
+.env
+*.pem
+*.key
+secrets/
+credentials.json
+kubeconfig
+kube-config.yaml
+
+# ==========================================
+# OS
+# ==========================================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ==========================================
+# IDE
+# ==========================================
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+*~
+
+# ==========================================
+# Java / Maven
+# ==========================================
+consumer/target/
+consumer/**/*.class
+consumer/.mvn/wrapper/maven-wrapper.jar
+consumer/dependency-reduced-pom.xml
+
+# ==========================================
+# Python
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+
+# ==========================================
+# Results (binary/large files)
+# ==========================================
+# Keep raw CSV data in git so it's reproducible
+# but ignore temporary / debug files
+results/raw/*.tmp
+results/raw/*.log
+results/**/scratch/
+
+# ==========================================
+# LaTeX build artefacts
+# ==========================================
+report/**/*.aux
+report/**/*.log
+report/**/*.out
+report/**/*.toc
+report/**/*.bbl
+report/**/*.blg
+report/**/*.synctex.gz
+report/**/*.fls
+report/**/*.fdb_latexmk
+report/**/*.nav
+report/**/*.snm
+# Keep the final PDF in git for easy review
+# report/**/*.pdf
+
+# ==========================================
+# Docker
+# ==========================================
+.docker/
+docker-compose.override.yml
+
+# ==========================================
+# Node (only if we end up adding tooling)
+# ==========================================
+node_modules/
+npm-debug.log*
