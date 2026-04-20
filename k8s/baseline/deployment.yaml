@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: consumer
+  namespace: baseline
+  labels:
+    app: consumer
+    strategy: hpa
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: consumer
+      strategy: hpa
+  template:
+    metadata:
+      labels:
+        app: consumer
+        strategy: hpa
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/actuator/prometheus"
+    spec:
+      containers:
+        - name: consumer
+          # Update this to your DockerHub path after pushing the image.
+          image: CHANGEME/cs5296-consumer:v1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: RABBITMQ_HOST
+              value: rabbitmq.rabbitmq.svc.cluster.local
+            - name: RABBITMQ_PORT
+              value: "5672"
+            - name: RABBITMQ_USER
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-credentials
+                  key: username
+            - name: RABBITMQ_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-credentials
+                  key: password
+            - name: CONSUMER_QUEUE
+              value: baseline-queue
+            - name: CONSUMER_PROCESS_MS
+              value: "200"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 15
+---
+# The consumer image expects RabbitMQ credentials in its own namespace, so
+# copy the secret into baseline as well.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: rabbitmq-credentials
+  namespace: baseline
+type: Opaque
+stringData:
+  username: admin
+  password: cs5296-demo
