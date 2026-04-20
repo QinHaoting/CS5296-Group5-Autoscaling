@@ -9,7 +9,7 @@ spec:
     kind: Deployment
     name: consumer
   minReplicaCount: 1
-  maxReplicaCount: 10
+  maxReplicaCount: 6
   pollingInterval: 5    # seconds between metric checks
   cooldownPeriod: 60    # seconds without activation before scaling to min
   triggers:
