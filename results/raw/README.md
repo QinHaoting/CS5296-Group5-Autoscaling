@@ -83,18 +83,34 @@ Plus:
 
 Inter-trial gap in every pair is 120 s (`runner.sh` cooldown).
 
-## 4. Headline results (mean of 3 runs)
+## 4. Headline metrics (what we compare)
 
-Computed by `analysis/plot.py`; full per-trial breakdown is in
-`../summary.csv`.
+Metrics fall into three axes; mean ± std over `n = 3` runs per group.
+Full per-trial breakdown is in `../summary.csv`.
+
+### Responsiveness (how fast the scaler reacts)
 
 | Metric | Baseline HPA | KEDA | Delta |
 |---|---|---|---|
-| Reaction latency | **73.83 s** | **63.38 s** | −14% |
-| Scale-up time (→6 pods) | **90.22 s** | **80.22 s** | −11% |
-| Drain time (queue → 0) | **309.74 s** | **297.59 s** | −4% |
-| Peak pods | 6 | 6 | = |
-| Avg throughput (drain window) | 22.75 msg/s | 23.35 msg/s | +3% |
+| Reaction latency *(time of first new Pod Ready after burst start)* | 73.8 ± 8.3 s | **63.4 ± 3.4 s** | −10.4 s / −14% |
+| Scale-up time *(time to reach peak pods)* | 90.2 ± 4.6 s | **80.2 ± 5.1 s** | −10.0 s / −11% |
+| Drain time *(end of burst → queue empty)* | 309.7 ± 5.2 s | **297.6 ± 5.6 s** | −12.2 s / −4% |
+
+### User-visible effect (throughput during drain)
+
+| Metric | Baseline HPA | KEDA | Delta |
+|---|---|---|---|
+| Avg throughput (drain window) | 22.75 ± 0.27 msg/s | **23.35 ± 0.27 msg/s** | +0.6 msg/s / +3% |
+| Messages delivered per trial | 7 451 ± 57 | 7 212 ± 90 | slightly lower (KEDA fewer pods in the tail) |
+
+### Resource utilisation / scale-down
+
+| Metric | Baseline HPA | KEDA | Notes |
+|---|---|---|---|
+| Scale-down started *(s after burst end)* | **not observed** | **326.9 ± 3.1 s** | Baseline HPA did not remove any pod in any trial: the CPU signal remained above the 50 % target throughout the ~355 s post-burst window, because the consumer pins its `limits.cpu` while draining the queue (utilisation = 300 m / 100 m = 300 %). KEDA's `queueLength` drops monotonically, so its desired replica count falls below 6 in-flight. |
+| Ready pods at end of trial *(≈ burst + 355 s)* | **6.0** | **3.0** | KEDA has already returned ½ of the pods. |
+| Pod-seconds overshoot *(integral of excess pods · s)* | 1 426 ± 27 | 1 415 ± 7 | Values are close because the observation window clips the Baseline HPA's scale-down tail; the gap grows monotonically with a longer observation. |
+| Peak pods | 6 (= `maxReplicas`) | 6 (= `maxReplicas`) | Both saturate the ceiling. |
 
 ## 5. Known deviations from nominal design
 
@@ -134,11 +150,17 @@ python3 -m venv .venv-analysis
 
 Output:
 
-- `results/summary.csv` — per-trial metrics
-- `results/figures/fig1-pod-scaling-timeline.png`
-- `results/figures/fig2-queue-depth-timeline.png`
-- `results/figures/fig3-reaction-latency-bar.png`
-- `results/figures/fig4-throughput-comparison.png`
+- `results/summary.csv` — per-trial metrics (all columns documented in §4)
+- `results/figures/fig1-run1-timeline.png` — baseline-run1 vs keda-run1, burst-aligned (pod + queue panels)
+- `results/figures/fig2-run2-timeline.png` — same, run 2
+- `results/figures/fig3-run3-timeline.png` — same, run 3
+- `results/figures/fig4-response-bar.png` — reaction / scale-up / drain bars (mean ± std)
+- `results/figures/fig5-scale-down-bar.png` — first pod removal + pods remaining at end of trial
+- `results/figures/fig6-overshoot-cost.png` — pod-seconds overshoot (cost proxy)
+
+Use **fig1–fig3** to narrate individual runs side-by-side (one scaler's
+curve directly overlaid on the other's, burst start at t = 0). Use
+**fig4–fig6** to summarise the aggregate across all 3 runs.
 
 > `analysis/requirements.txt` pins `matplotlib==3.8.4`, which has no Python
 > 3.13 wheel (it tries to build FreeType via `make`). Loosen the pins to
@@ -199,4 +221,4 @@ PHASE 7  — Harvest and analyse (on laptop)
 
 - `../smoke/` — pre-flight rehearsal with a shorter pattern (500 msgs at 20 msg/s). Not used in the headline numbers but documents how we tuned the manifest before the formal batch.
 - `../summary.csv` — the table behind section 4.
-- `../figures/` — the four publication figures.
+- `../figures/` — 6 publication figures (3 per-run timeline pairs + 3 aggregate bars).
