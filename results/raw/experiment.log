@@ -1,0 +1,600 @@
+==============================================================
+Experiment batch start: Mon Apr 20 19:58:40 UTC 2026
+Run order: baseline-1 -> baseline-2 -> baseline-3 -> keda-1 -> keda-2 -> keda-3
+Expected total wall time: ~50 min
+==============================================================
+
+==============================================================
+[2026-04-20 19:58:40] TRIAL 1/6: baseline run 1
+==============================================================
+
+[1;36m==>[0m Experiment: group=baseline run=1 queue=baseline-queue
+
+[1;36m==>[0m Resetting deployment to 1 replica...
+
+[1;36m==>[0m Purging queue baseline-queue...
+
+[1;36m==>[0m Starting metrics collector -> /home/ubuntu/CS5296-Group5-Autoscaling/results/raw/baseline-run1.csv
+
+[1;36m==>[0m Launching producer...
+2026-04-20 19:58:53,273 INFO producer: connecting to amqp://admin:cs5296-demo@localhost:30567
+2026-04-20 19:58:53,275 INFO pika.adapters.utils.connection_workflow: Pika version 1.3.2 connecting to ('127.0.0.1', 30567)
+2026-04-20 19:58:53,276 INFO pika.adapters.utils.io_services_utils: Socket connected: <socket.socket fd=6, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=6, laddr=('127.0.0.1', 33506), raddr=('127.0.0.1', 30567)>
+2026-04-20 19:58:53,276 INFO pika.adapters.utils.connection_workflow: Streaming transport linked up: (<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x74d2c1028700>, _StreamingProtocolShim: <SelectConnection PROTOCOL transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x74d2c1028700> params=<URLParameters host=localhost port=30567 virtual_host=/ ssl=False>>).
+2026-04-20 19:58:53,279 INFO pika.adapters.utils.connection_workflow: AMQPConnector - reporting success: <SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x74d2c1028700> params=<URLParameters host=localhost port=30567 virtual_host=/ ssl=False>>
+2026-04-20 19:58:53,279 INFO pika.adapters.utils.connection_workflow: AMQPConnectionWorkflow - reporting success: <SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x74d2c1028700> params=<URLParameters host=localhost port=30567 virtual_host=/ ssl=False>>
+2026-04-20 19:58:53,279 INFO pika.adapters.blocking_connection: Connection workflow succeeded: <SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x74d2c1028700> params=<URLParameters host=localhost port=30567 virtual_host=/ ssl=False>>
+2026-04-20 19:58:53,279 INFO pika.adapters.blocking_connection: Created channel=1
+2026-04-20 19:58:53,281 INFO producer: phase 0: rate=5.0/s for 10.0s (payload=256B)
+2026-04-20 19:59:03,325 INFO producer: phase 1: rate=1000.0/s for 10.0s (payload=256B)
+2026-04-20 19:59:13,326 INFO producer: phase 2: rate=0.0/s for 180.0s (payload=256B)
+2026-04-20 20:02:13,426 INFO producer: sent 7446 messages in 200.1s (avg 37.2 msg/s)
+2026-04-20 20:02:13,426 INFO pika.adapters.blocking_connection: Closing connection (200): Normal shutdown
+2026-04-20 20:02:13,426 INFO pika.channel: Closing channel (200): 'Normal shutdown' on <Channel number=1 OPEN conn=<SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x74d2c1028700> params=<URLParameters host=localhost port=30567 virtual_host=/ ssl=False>>>
+2026-04-20 20:02:13,428 ERROR pika.adapters.utils.io_services_utils: _AsyncBaseTransport._produce() failed, aborting connection: error=ConnectionResetError(104, 'Connection reset by peer'); sock=<socket.socket fd=6, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=6, laddr=('127.0.0.1', 33506)>; Caller's stack:
+Traceback (most recent call last):
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 1103, in _on_socket_writable
+    self._produce()
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 819, in _produce
+    num_bytes_sent = self._sigint_safe_send(self._sock,
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 79, in retry_sigint_wrap
+    return func(*args, **kwargs)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 861, in _sigint_safe_send
+    return sock.send(data)
+ConnectionResetError: [Errno 104] Connection reset by peer
+Traceback (most recent call last):
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 1103, in _on_socket_writable
+    self._produce()
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 819, in _produce
+    num_bytes_sent = self._sigint_safe_send(self._sock,
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 79, in retry_sigint_wrap
+    return func(*args, **kwargs)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 861, in _sigint_safe_send
+    return sock.send(data)
+ConnectionResetError: [Errno 104] Connection reset by peer
+2026-04-20 20:02:13,428 INFO pika.adapters.utils.io_services_utils: _AsyncTransportBase._initate_abort(): Initiating abrupt asynchronous transport shutdown: state=1; error=ConnectionResetError(104, 'Connection reset by peer'); <socket.socket fd=6, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=6, laddr=('127.0.0.1', 33506)>
+2026-04-20 20:02:13,429 INFO pika.adapters.utils.io_services_utils: Deactivating transport: state=1; <socket.socket fd=6, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=6, laddr=('127.0.0.1', 33506)>
+2026-04-20 20:02:13,429 ERROR pika.adapters.base_connection: connection_lost: StreamLostError: ("Stream connection lost: ConnectionResetError(104, 'Connection reset by peer')",)
+2026-04-20 20:02:13,429 INFO pika.connection: AMQP stack terminated, failed to connect, or aborted: opened=True, error-arg=StreamLostError: ("Stream connection lost: ConnectionResetError(104, 'Connection reset by peer')",); pending-error=None
+2026-04-20 20:02:13,429 INFO pika.connection: Stack terminated due to StreamLostError: ("Stream connection lost: ConnectionResetError(104, 'Connection reset by peer')",)
+2026-04-20 20:02:13,429 INFO pika.adapters.utils.io_services_utils: Closing transport socket and unlinking: state=2; <socket.socket fd=6, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=6, laddr=('127.0.0.1', 33506)>
+2026-04-20 20:02:13,429 ERROR pika.adapters.blocking_connection: Unexpected connection close detected: StreamLostError: ("Stream connection lost: ConnectionResetError(104, 'Connection reset by peer')",)
+Traceback (most recent call last):
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/load-test/producer.py", line 164, in <module>
+    main()
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/click/core.py", line 1157, in __call__
+    return self.main(*args, **kwargs)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/click/core.py", line 1078, in main
+    rv = self.invoke(ctx)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/click/core.py", line 1434, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/click/core.py", line 783, in invoke
+    return __callback(*args, **kwargs)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/load-test/producer.py", line 160, in main
+    run(rabbitmq, queue, phases, output)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/load-test/producer.py", line 125, in run
+    connection.close()
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/blocking_connection.py", line 809, in close
+    channel.close(reply_code, reply_text)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/blocking_connection.py", line 1539, in close
+    self._flush_output(lambda: self.is_closed)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/blocking_connection.py", line 1353, in _flush_output
+    self._connection._flush_output(lambda: self.is_closed, *waiters)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/blocking_connection.py", line 523, in _flush_output
+    raise self._closed_result.value.error
+pika.exceptions.StreamLostError: Stream connection lost: ConnectionResetError(104, 'Connection reset by peer')
+
+[1;36m==>[0m producer exited with 1; continuing to observation window
+
+[1;36m==>[0m Observing post-burst behaviour for 180s...
+
+[1;36m==>[0m Stopping collector.
+
+[1;36m==>[0m Trial done.
+  metrics: /home/ubuntu/CS5296-Group5-Autoscaling/results/raw/baseline-run1.csv
+  sendlog: /home/ubuntu/CS5296-Group5-Autoscaling/results/raw/baseline-run1-sendlog.csv
+[20:05:13] trial 1 OK (elapsed 393s)
+[20:05:13] cooldown 120s before next trial...
+collector stopped
+
+==============================================================
+[2026-04-20 20:07:13] TRIAL 2/6: baseline run 2
+==============================================================
+
+[1;36m==>[0m Experiment: group=baseline run=2 queue=baseline-queue
+
+[1;36m==>[0m Resetting deployment to 1 replica...
+
+[1;36m==>[0m Purging queue baseline-queue...
+
+[1;36m==>[0m Starting metrics collector -> /home/ubuntu/CS5296-Group5-Autoscaling/results/raw/baseline-run2.csv
+
+[1;36m==>[0m Launching producer...
+2026-04-20 20:07:24,934 INFO producer: connecting to amqp://admin:cs5296-demo@localhost:30567
+2026-04-20 20:07:24,937 INFO pika.adapters.utils.connection_workflow: Pika version 1.3.2 connecting to ('127.0.0.1', 30567)
+2026-04-20 20:07:24,938 INFO pika.adapters.utils.io_services_utils: Socket connected: <socket.socket fd=6, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=6, laddr=('127.0.0.1', 37266), raddr=('127.0.0.1', 30567)>
+2026-04-20 20:07:24,939 INFO pika.adapters.utils.connection_workflow: Streaming transport linked up: (<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x7e257b7c4700>, _StreamingProtocolShim: <SelectConnection PROTOCOL transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x7e257b7c4700> params=<URLParameters host=localhost port=30567 virtual_host=/ ssl=False>>).
+2026-04-20 20:07:24,945 INFO pika.adapters.utils.connection_workflow: AMQPConnector - reporting success: <SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x7e257b7c4700> params=<URLParameters host=localhost port=30567 virtual_host=/ ssl=False>>
+2026-04-20 20:07:24,945 INFO pika.adapters.utils.connection_workflow: AMQPConnectionWorkflow - reporting success: <SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x7e257b7c4700> params=<URLParameters host=localhost port=30567 virtual_host=/ ssl=False>>
+2026-04-20 20:07:24,945 INFO pika.adapters.blocking_connection: Connection workflow succeeded: <SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x7e257b7c4700> params=<URLParameters host=localhost port=30567 virtual_host=/ ssl=False>>
+2026-04-20 20:07:24,945 INFO pika.adapters.blocking_connection: Created channel=1
+2026-04-20 20:07:24,947 INFO producer: phase 0: rate=5.0/s for 10.0s (payload=256B)
+2026-04-20 20:07:34,981 INFO producer: phase 1: rate=1000.0/s for 10.0s (payload=256B)
+2026-04-20 20:07:44,982 INFO producer: phase 2: rate=0.0/s for 180.0s (payload=256B)
+2026-04-20 20:10:45,082 INFO producer: sent 7398 messages in 200.1s (avg 37.0 msg/s)
+2026-04-20 20:10:45,082 INFO pika.adapters.blocking_connection: Closing connection (200): Normal shutdown
+2026-04-20 20:10:45,082 INFO pika.channel: Closing channel (200): 'Normal shutdown' on <Channel number=1 OPEN conn=<SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x7e257b7c4700> params=<URLParameters host=localhost port=30567 virtual_host=/ ssl=False>>>
+2026-04-20 20:10:45,084 ERROR pika.adapters.utils.io_services_utils: _AsyncBaseTransport._produce() failed, aborting connection: error=ConnectionResetError(104, 'Connection reset by peer'); sock=<socket.socket fd=6, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=6, laddr=('127.0.0.1', 37266)>; Caller's stack:
+Traceback (most recent call last):
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 1103, in _on_socket_writable
+    self._produce()
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 819, in _produce
+    num_bytes_sent = self._sigint_safe_send(self._sock,
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 79, in retry_sigint_wrap
+    return func(*args, **kwargs)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 861, in _sigint_safe_send
+    return sock.send(data)
+ConnectionResetError: [Errno 104] Connection reset by peer
+Traceback (most recent call last):
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 1103, in _on_socket_writable
+    self._produce()
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 819, in _produce
+    num_bytes_sent = self._sigint_safe_send(self._sock,
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 79, in retry_sigint_wrap
+    return func(*args, **kwargs)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 861, in _sigint_safe_send
+    return sock.send(data)
+ConnectionResetError: [Errno 104] Connection reset by peer
+2026-04-20 20:10:45,085 INFO pika.adapters.utils.io_services_utils: _AsyncTransportBase._initate_abort(): Initiating abrupt asynchronous transport shutdown: state=1; error=ConnectionResetError(104, 'Connection reset by peer'); <socket.socket fd=6, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=6, laddr=('127.0.0.1', 37266)>
+2026-04-20 20:10:45,085 INFO pika.adapters.utils.io_services_utils: Deactivating transport: state=1; <socket.socket fd=6, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=6, laddr=('127.0.0.1', 37266)>
+2026-04-20 20:10:45,085 ERROR pika.adapters.base_connection: connection_lost: StreamLostError: ("Stream connection lost: ConnectionResetError(104, 'Connection reset by peer')",)
+2026-04-20 20:10:45,086 INFO pika.connection: AMQP stack terminated, failed to connect, or aborted: opened=True, error-arg=StreamLostError: ("Stream connection lost: ConnectionResetError(104, 'Connection reset by peer')",); pending-error=None
+2026-04-20 20:10:45,086 INFO pika.connection: Stack terminated due to StreamLostError: ("Stream connection lost: ConnectionResetError(104, 'Connection reset by peer')",)
+2026-04-20 20:10:45,086 INFO pika.adapters.utils.io_services_utils: Closing transport socket and unlinking: state=2; <socket.socket fd=6, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=6, laddr=('127.0.0.1', 37266)>
+2026-04-20 20:10:45,086 ERROR pika.adapters.blocking_connection: Unexpected connection close detected: StreamLostError: ("Stream connection lost: ConnectionResetError(104, 'Connection reset by peer')",)
+Traceback (most recent call last):
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/load-test/producer.py", line 164, in <module>
+    main()
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/click/core.py", line 1157, in __call__
+    return self.main(*args, **kwargs)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/click/core.py", line 1078, in main
+    rv = self.invoke(ctx)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/click/core.py", line 1434, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/click/core.py", line 783, in invoke
+    return __callback(*args, **kwargs)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/load-test/producer.py", line 160, in main
+    run(rabbitmq, queue, phases, output)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/load-test/producer.py", line 125, in run
+    connection.close()
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/blocking_connection.py", line 809, in close
+    channel.close(reply_code, reply_text)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/blocking_connection.py", line 1539, in close
+    self._flush_output(lambda: self.is_closed)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/blocking_connection.py", line 1353, in _flush_output
+    self._connection._flush_output(lambda: self.is_closed, *waiters)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/blocking_connection.py", line 523, in _flush_output
+    raise self._closed_result.value.error
+pika.exceptions.StreamLostError: Stream connection lost: ConnectionResetError(104, 'Connection reset by peer')
+
+[1;36m==>[0m producer exited with 1; continuing to observation window
+
+[1;36m==>[0m Observing post-burst behaviour for 180s...
+
+[1;36m==>[0m Stopping collector.
+
+[1;36m==>[0m Trial done.
+  metrics: /home/ubuntu/CS5296-Group5-Autoscaling/results/raw/baseline-run2.csv
+  sendlog: /home/ubuntu/CS5296-Group5-Autoscaling/results/raw/baseline-run2-sendlog.csv
+[20:13:45] trial 2 OK (elapsed 392s)
+[20:13:45] cooldown 120s before next trial...
+collector stopped
+
+==============================================================
+[2026-04-20 20:15:45] TRIAL 3/6: baseline run 3
+==============================================================
+
+[1;36m==>[0m Experiment: group=baseline run=3 queue=baseline-queue
+
+[1;36m==>[0m Resetting deployment to 1 replica...
+
+[1;36m==>[0m Purging queue baseline-queue...
+
+[1;36m==>[0m Starting metrics collector -> /home/ubuntu/CS5296-Group5-Autoscaling/results/raw/baseline-run3.csv
+
+[1;36m==>[0m Launching producer...
+2026-04-20 20:15:56,562 INFO producer: connecting to amqp://admin:cs5296-demo@localhost:30567
+2026-04-20 20:15:56,564 INFO pika.adapters.utils.connection_workflow: Pika version 1.3.2 connecting to ('127.0.0.1', 30567)
+2026-04-20 20:15:56,565 INFO pika.adapters.utils.io_services_utils: Socket connected: <socket.socket fd=6, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=6, laddr=('127.0.0.1', 57626), raddr=('127.0.0.1', 30567)>
+2026-04-20 20:15:56,565 INFO pika.adapters.utils.connection_workflow: Streaming transport linked up: (<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x7155e43c0700>, _StreamingProtocolShim: <SelectConnection PROTOCOL transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x7155e43c0700> params=<URLParameters host=localhost port=30567 virtual_host=/ ssl=False>>).
+2026-04-20 20:15:56,568 INFO pika.adapters.utils.connection_workflow: AMQPConnector - reporting success: <SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x7155e43c0700> params=<URLParameters host=localhost port=30567 virtual_host=/ ssl=False>>
+2026-04-20 20:15:56,568 INFO pika.adapters.utils.connection_workflow: AMQPConnectionWorkflow - reporting success: <SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x7155e43c0700> params=<URLParameters host=localhost port=30567 virtual_host=/ ssl=False>>
+2026-04-20 20:15:56,568 INFO pika.adapters.blocking_connection: Connection workflow succeeded: <SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x7155e43c0700> params=<URLParameters host=localhost port=30567 virtual_host=/ ssl=False>>
+2026-04-20 20:15:56,568 INFO pika.adapters.blocking_connection: Created channel=1
+2026-04-20 20:15:56,569 INFO producer: phase 0: rate=5.0/s for 10.0s (payload=256B)
+2026-04-20 20:16:06,604 INFO producer: phase 1: rate=1000.0/s for 10.0s (payload=256B)
+2026-04-20 20:16:16,605 INFO producer: phase 2: rate=0.0/s for 180.0s (payload=256B)
+2026-04-20 20:19:16,706 INFO producer: sent 7510 messages in 200.1s (avg 37.5 msg/s)
+2026-04-20 20:19:16,706 INFO pika.adapters.blocking_connection: Closing connection (200): Normal shutdown
+2026-04-20 20:19:16,706 INFO pika.channel: Closing channel (200): 'Normal shutdown' on <Channel number=1 OPEN conn=<SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x7155e43c0700> params=<URLParameters host=localhost port=30567 virtual_host=/ ssl=False>>>
+2026-04-20 20:19:16,708 ERROR pika.adapters.utils.io_services_utils: _AsyncBaseTransport._produce() failed, aborting connection: error=ConnectionResetError(104, 'Connection reset by peer'); sock=<socket.socket fd=6, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=6, laddr=('127.0.0.1', 57626)>; Caller's stack:
+Traceback (most recent call last):
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 1103, in _on_socket_writable
+    self._produce()
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 819, in _produce
+    num_bytes_sent = self._sigint_safe_send(self._sock,
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 79, in retry_sigint_wrap
+    return func(*args, **kwargs)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 861, in _sigint_safe_send
+    return sock.send(data)
+ConnectionResetError: [Errno 104] Connection reset by peer
+Traceback (most recent call last):
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 1103, in _on_socket_writable
+    self._produce()
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 819, in _produce
+    num_bytes_sent = self._sigint_safe_send(self._sock,
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 79, in retry_sigint_wrap
+    return func(*args, **kwargs)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 861, in _sigint_safe_send
+    return sock.send(data)
+ConnectionResetError: [Errno 104] Connection reset by peer
+2026-04-20 20:19:16,708 INFO pika.adapters.utils.io_services_utils: _AsyncTransportBase._initate_abort(): Initiating abrupt asynchronous transport shutdown: state=1; error=ConnectionResetError(104, 'Connection reset by peer'); <socket.socket fd=6, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=6, laddr=('127.0.0.1', 57626)>
+2026-04-20 20:19:16,708 INFO pika.adapters.utils.io_services_utils: Deactivating transport: state=1; <socket.socket fd=6, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=6, laddr=('127.0.0.1', 57626)>
+2026-04-20 20:19:16,709 ERROR pika.adapters.base_connection: connection_lost: StreamLostError: ("Stream connection lost: ConnectionResetError(104, 'Connection reset by peer')",)
+2026-04-20 20:19:16,709 INFO pika.connection: AMQP stack terminated, failed to connect, or aborted: opened=True, error-arg=StreamLostError: ("Stream connection lost: ConnectionResetError(104, 'Connection reset by peer')",); pending-error=None
+2026-04-20 20:19:16,709 INFO pika.connection: Stack terminated due to StreamLostError: ("Stream connection lost: ConnectionResetError(104, 'Connection reset by peer')",)
+2026-04-20 20:19:16,710 INFO pika.adapters.utils.io_services_utils: Closing transport socket and unlinking: state=2; <socket.socket fd=6, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=6, laddr=('127.0.0.1', 57626)>
+2026-04-20 20:19:16,710 ERROR pika.adapters.blocking_connection: Unexpected connection close detected: StreamLostError: ("Stream connection lost: ConnectionResetError(104, 'Connection reset by peer')",)
+Traceback (most recent call last):
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/load-test/producer.py", line 164, in <module>
+    main()
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/click/core.py", line 1157, in __call__
+    return self.main(*args, **kwargs)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/click/core.py", line 1078, in main
+    rv = self.invoke(ctx)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/click/core.py", line 1434, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/click/core.py", line 783, in invoke
+    return __callback(*args, **kwargs)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/load-test/producer.py", line 160, in main
+    run(rabbitmq, queue, phases, output)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/load-test/producer.py", line 125, in run
+    connection.close()
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/blocking_connection.py", line 809, in close
+    channel.close(reply_code, reply_text)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/blocking_connection.py", line 1539, in close
+    self._flush_output(lambda: self.is_closed)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/blocking_connection.py", line 1353, in _flush_output
+    self._connection._flush_output(lambda: self.is_closed, *waiters)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/blocking_connection.py", line 523, in _flush_output
+    raise self._closed_result.value.error
+pika.exceptions.StreamLostError: Stream connection lost: ConnectionResetError(104, 'Connection reset by peer')
+
+[1;36m==>[0m producer exited with 1; continuing to observation window
+
+[1;36m==>[0m Observing post-burst behaviour for 180s...
+
+[1;36m==>[0m Stopping collector.
+
+[1;36m==>[0m Trial done.
+  metrics: /home/ubuntu/CS5296-Group5-Autoscaling/results/raw/baseline-run3.csv
+  sendlog: /home/ubuntu/CS5296-Group5-Autoscaling/results/raw/baseline-run3-sendlog.csv
+[20:22:16] trial 3 OK (elapsed 391s)
+[20:22:16] cooldown 120s before next trial...
+collector stopped
+
+==============================================================
+[2026-04-20 20:24:16] TRIAL 4/6: keda run 1
+==============================================================
+
+[1;36m==>[0m Experiment: group=keda run=1 queue=keda-queue
+
+[1;36m==>[0m Resetting deployment to 1 replica...
+
+[1;36m==>[0m Purging queue keda-queue...
+
+[1;36m==>[0m Starting metrics collector -> /home/ubuntu/CS5296-Group5-Autoscaling/results/raw/keda-run1.csv
+
+[1;36m==>[0m Launching producer...
+2026-04-20 20:24:28,174 INFO producer: connecting to amqp://admin:cs5296-demo@localhost:30567
+2026-04-20 20:24:28,176 INFO pika.adapters.utils.connection_workflow: Pika version 1.3.2 connecting to ('127.0.0.1', 30567)
+2026-04-20 20:24:28,177 INFO pika.adapters.utils.io_services_utils: Socket connected: <socket.socket fd=6, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=6, laddr=('127.0.0.1', 50834), raddr=('127.0.0.1', 30567)>
+2026-04-20 20:24:28,177 INFO pika.adapters.utils.connection_workflow: Streaming transport linked up: (<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x72581162c700>, _StreamingProtocolShim: <SelectConnection PROTOCOL transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x72581162c700> params=<URLParameters host=localhost port=30567 virtual_host=/ ssl=False>>).
+2026-04-20 20:24:28,180 INFO pika.adapters.utils.connection_workflow: AMQPConnector - reporting success: <SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x72581162c700> params=<URLParameters host=localhost port=30567 virtual_host=/ ssl=False>>
+2026-04-20 20:24:28,180 INFO pika.adapters.utils.connection_workflow: AMQPConnectionWorkflow - reporting success: <SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x72581162c700> params=<URLParameters host=localhost port=30567 virtual_host=/ ssl=False>>
+2026-04-20 20:24:28,180 INFO pika.adapters.blocking_connection: Connection workflow succeeded: <SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x72581162c700> params=<URLParameters host=localhost port=30567 virtual_host=/ ssl=False>>
+2026-04-20 20:24:28,181 INFO pika.adapters.blocking_connection: Created channel=1
+2026-04-20 20:24:28,182 INFO producer: phase 0: rate=5.0/s for 10.0s (payload=256B)
+2026-04-20 20:24:38,222 INFO producer: phase 1: rate=1000.0/s for 10.0s (payload=256B)
+2026-04-20 20:24:48,223 INFO producer: phase 2: rate=0.0/s for 180.0s (payload=256B)
+2026-04-20 20:27:48,325 INFO producer: sent 7257 messages in 200.1s (avg 36.3 msg/s)
+2026-04-20 20:27:48,325 INFO pika.adapters.blocking_connection: Closing connection (200): Normal shutdown
+2026-04-20 20:27:48,325 INFO pika.channel: Closing channel (200): 'Normal shutdown' on <Channel number=1 OPEN conn=<SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x72581162c700> params=<URLParameters host=localhost port=30567 virtual_host=/ ssl=False>>>
+2026-04-20 20:27:48,326 ERROR pika.adapters.utils.io_services_utils: _AsyncBaseTransport._produce() failed, aborting connection: error=ConnectionResetError(104, 'Connection reset by peer'); sock=<socket.socket fd=6, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=6, laddr=('127.0.0.1', 50834)>; Caller's stack:
+Traceback (most recent call last):
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 1103, in _on_socket_writable
+    self._produce()
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 819, in _produce
+    num_bytes_sent = self._sigint_safe_send(self._sock,
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 79, in retry_sigint_wrap
+    return func(*args, **kwargs)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 861, in _sigint_safe_send
+    return sock.send(data)
+ConnectionResetError: [Errno 104] Connection reset by peer
+Traceback (most recent call last):
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 1103, in _on_socket_writable
+    self._produce()
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 819, in _produce
+    num_bytes_sent = self._sigint_safe_send(self._sock,
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 79, in retry_sigint_wrap
+    return func(*args, **kwargs)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 861, in _sigint_safe_send
+    return sock.send(data)
+ConnectionResetError: [Errno 104] Connection reset by peer
+2026-04-20 20:27:48,326 INFO pika.adapters.utils.io_services_utils: _AsyncTransportBase._initate_abort(): Initiating abrupt asynchronous transport shutdown: state=1; error=ConnectionResetError(104, 'Connection reset by peer'); <socket.socket fd=6, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=6, laddr=('127.0.0.1', 50834)>
+2026-04-20 20:27:48,326 INFO pika.adapters.utils.io_services_utils: Deactivating transport: state=1; <socket.socket fd=6, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=6, laddr=('127.0.0.1', 50834)>
+2026-04-20 20:27:48,327 ERROR pika.adapters.base_connection: connection_lost: StreamLostError: ("Stream connection lost: ConnectionResetError(104, 'Connection reset by peer')",)
+2026-04-20 20:27:48,327 INFO pika.connection: AMQP stack terminated, failed to connect, or aborted: opened=True, error-arg=StreamLostError: ("Stream connection lost: ConnectionResetError(104, 'Connection reset by peer')",); pending-error=None
+2026-04-20 20:27:48,327 INFO pika.connection: Stack terminated due to StreamLostError: ("Stream connection lost: ConnectionResetError(104, 'Connection reset by peer')",)
+2026-04-20 20:27:48,327 INFO pika.adapters.utils.io_services_utils: Closing transport socket and unlinking: state=2; <socket.socket fd=6, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=6, laddr=('127.0.0.1', 50834)>
+2026-04-20 20:27:48,327 ERROR pika.adapters.blocking_connection: Unexpected connection close detected: StreamLostError: ("Stream connection lost: ConnectionResetError(104, 'Connection reset by peer')",)
+Traceback (most recent call last):
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/load-test/producer.py", line 164, in <module>
+    main()
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/click/core.py", line 1157, in __call__
+    return self.main(*args, **kwargs)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/click/core.py", line 1078, in main
+    rv = self.invoke(ctx)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/click/core.py", line 1434, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/click/core.py", line 783, in invoke
+    return __callback(*args, **kwargs)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/load-test/producer.py", line 160, in main
+    run(rabbitmq, queue, phases, output)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/load-test/producer.py", line 125, in run
+    connection.close()
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/blocking_connection.py", line 809, in close
+    channel.close(reply_code, reply_text)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/blocking_connection.py", line 1539, in close
+    self._flush_output(lambda: self.is_closed)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/blocking_connection.py", line 1353, in _flush_output
+    self._connection._flush_output(lambda: self.is_closed, *waiters)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/blocking_connection.py", line 523, in _flush_output
+    raise self._closed_result.value.error
+pika.exceptions.StreamLostError: Stream connection lost: ConnectionResetError(104, 'Connection reset by peer')
+
+[1;36m==>[0m producer exited with 1; continuing to observation window
+
+[1;36m==>[0m Observing post-burst behaviour for 180s...
+
+[1;36m==>[0m Stopping collector.
+
+[1;36m==>[0m Trial done.
+  metrics: /home/ubuntu/CS5296-Group5-Autoscaling/results/raw/keda-run1.csv
+  sendlog: /home/ubuntu/CS5296-Group5-Autoscaling/results/raw/keda-run1-sendlog.csv
+[20:30:48] trial 4 OK (elapsed 392s)
+[20:30:48] cooldown 120s before next trial...
+collector stopped
+
+==============================================================
+[2026-04-20 20:32:48] TRIAL 5/6: keda run 2
+==============================================================
+
+[1;36m==>[0m Experiment: group=keda run=2 queue=keda-queue
+
+[1;36m==>[0m Resetting deployment to 1 replica...
+
+[1;36m==>[0m Purging queue keda-queue...
+
+[1;36m==>[0m Starting metrics collector -> /home/ubuntu/CS5296-Group5-Autoscaling/results/raw/keda-run2.csv
+
+[1;36m==>[0m Launching producer...
+2026-04-20 20:32:59,773 INFO producer: connecting to amqp://admin:cs5296-demo@localhost:30567
+2026-04-20 20:32:59,775 INFO pika.adapters.utils.connection_workflow: Pika version 1.3.2 connecting to ('127.0.0.1', 30567)
+2026-04-20 20:32:59,776 INFO pika.adapters.utils.io_services_utils: Socket connected: <socket.socket fd=6, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=6, laddr=('127.0.0.1', 58924), raddr=('127.0.0.1', 30567)>
+2026-04-20 20:32:59,776 INFO pika.adapters.utils.connection_workflow: Streaming transport linked up: (<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x761e66ff0700>, _StreamingProtocolShim: <SelectConnection PROTOCOL transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x761e66ff0700> params=<URLParameters host=localhost port=30567 virtual_host=/ ssl=False>>).
+2026-04-20 20:32:59,779 INFO pika.adapters.utils.connection_workflow: AMQPConnector - reporting success: <SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x761e66ff0700> params=<URLParameters host=localhost port=30567 virtual_host=/ ssl=False>>
+2026-04-20 20:32:59,779 INFO pika.adapters.utils.connection_workflow: AMQPConnectionWorkflow - reporting success: <SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x761e66ff0700> params=<URLParameters host=localhost port=30567 virtual_host=/ ssl=False>>
+2026-04-20 20:32:59,779 INFO pika.adapters.blocking_connection: Connection workflow succeeded: <SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x761e66ff0700> params=<URLParameters host=localhost port=30567 virtual_host=/ ssl=False>>
+2026-04-20 20:32:59,779 INFO pika.adapters.blocking_connection: Created channel=1
+2026-04-20 20:32:59,780 INFO producer: phase 0: rate=5.0/s for 10.0s (payload=256B)
+2026-04-20 20:33:09,814 INFO producer: phase 1: rate=1000.0/s for 10.0s (payload=256B)
+2026-04-20 20:33:19,817 INFO producer: phase 2: rate=0.0/s for 180.0s (payload=256B)
+2026-04-20 20:36:19,917 INFO producer: sent 7274 messages in 200.1s (avg 36.3 msg/s)
+2026-04-20 20:36:19,917 INFO pika.adapters.blocking_connection: Closing connection (200): Normal shutdown
+2026-04-20 20:36:19,917 INFO pika.channel: Closing channel (200): 'Normal shutdown' on <Channel number=1 OPEN conn=<SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x761e66ff0700> params=<URLParameters host=localhost port=30567 virtual_host=/ ssl=False>>>
+2026-04-20 20:36:19,919 ERROR pika.adapters.utils.io_services_utils: _AsyncBaseTransport._produce() failed, aborting connection: error=ConnectionResetError(104, 'Connection reset by peer'); sock=<socket.socket fd=6, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=6, laddr=('127.0.0.1', 58924)>; Caller's stack:
+Traceback (most recent call last):
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 1103, in _on_socket_writable
+    self._produce()
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 819, in _produce
+    num_bytes_sent = self._sigint_safe_send(self._sock,
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 79, in retry_sigint_wrap
+    return func(*args, **kwargs)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 861, in _sigint_safe_send
+    return sock.send(data)
+ConnectionResetError: [Errno 104] Connection reset by peer
+Traceback (most recent call last):
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 1103, in _on_socket_writable
+    self._produce()
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 819, in _produce
+    num_bytes_sent = self._sigint_safe_send(self._sock,
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 79, in retry_sigint_wrap
+    return func(*args, **kwargs)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 861, in _sigint_safe_send
+    return sock.send(data)
+ConnectionResetError: [Errno 104] Connection reset by peer
+2026-04-20 20:36:19,920 INFO pika.adapters.utils.io_services_utils: _AsyncTransportBase._initate_abort(): Initiating abrupt asynchronous transport shutdown: state=1; error=ConnectionResetError(104, 'Connection reset by peer'); <socket.socket fd=6, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=6, laddr=('127.0.0.1', 58924)>
+2026-04-20 20:36:19,920 INFO pika.adapters.utils.io_services_utils: Deactivating transport: state=1; <socket.socket fd=6, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=6, laddr=('127.0.0.1', 58924)>
+2026-04-20 20:36:19,920 ERROR pika.adapters.base_connection: connection_lost: StreamLostError: ("Stream connection lost: ConnectionResetError(104, 'Connection reset by peer')",)
+2026-04-20 20:36:19,921 INFO pika.connection: AMQP stack terminated, failed to connect, or aborted: opened=True, error-arg=StreamLostError: ("Stream connection lost: ConnectionResetError(104, 'Connection reset by peer')",); pending-error=None
+2026-04-20 20:36:19,921 INFO pika.connection: Stack terminated due to StreamLostError: ("Stream connection lost: ConnectionResetError(104, 'Connection reset by peer')",)
+2026-04-20 20:36:19,921 INFO pika.adapters.utils.io_services_utils: Closing transport socket and unlinking: state=2; <socket.socket fd=6, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=6, laddr=('127.0.0.1', 58924)>
+2026-04-20 20:36:19,921 ERROR pika.adapters.blocking_connection: Unexpected connection close detected: StreamLostError: ("Stream connection lost: ConnectionResetError(104, 'Connection reset by peer')",)
+Traceback (most recent call last):
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/load-test/producer.py", line 164, in <module>
+    main()
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/click/core.py", line 1157, in __call__
+    return self.main(*args, **kwargs)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/click/core.py", line 1078, in main
+    rv = self.invoke(ctx)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/click/core.py", line 1434, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/click/core.py", line 783, in invoke
+    return __callback(*args, **kwargs)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/load-test/producer.py", line 160, in main
+    run(rabbitmq, queue, phases, output)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/load-test/producer.py", line 125, in run
+    connection.close()
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/blocking_connection.py", line 809, in close
+    channel.close(reply_code, reply_text)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/blocking_connection.py", line 1539, in close
+    self._flush_output(lambda: self.is_closed)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/blocking_connection.py", line 1353, in _flush_output
+    self._connection._flush_output(lambda: self.is_closed, *waiters)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/blocking_connection.py", line 523, in _flush_output
+    raise self._closed_result.value.error
+pika.exceptions.StreamLostError: Stream connection lost: ConnectionResetError(104, 'Connection reset by peer')
+
+[1;36m==>[0m producer exited with 1; continuing to observation window
+
+[1;36m==>[0m Observing post-burst behaviour for 180s...
+
+[1;36m==>[0m Stopping collector.
+
+[1;36m==>[0m Trial done.
+  metrics: /home/ubuntu/CS5296-Group5-Autoscaling/results/raw/keda-run2.csv
+  sendlog: /home/ubuntu/CS5296-Group5-Autoscaling/results/raw/keda-run2-sendlog.csv
+[20:39:19] trial 5 OK (elapsed 391s)
+[20:39:19] cooldown 120s before next trial...
+collector stopped
+
+==============================================================
+[2026-04-20 20:41:19] TRIAL 6/6: keda run 3
+==============================================================
+
+[1;36m==>[0m Experiment: group=keda run=3 queue=keda-queue
+
+[1;36m==>[0m Resetting deployment to 1 replica...
+
+[1;36m==>[0m Purging queue keda-queue...
+
+[1;36m==>[0m Starting metrics collector -> /home/ubuntu/CS5296-Group5-Autoscaling/results/raw/keda-run3.csv
+
+[1;36m==>[0m Launching producer...
+2026-04-20 20:41:31,423 INFO producer: connecting to amqp://admin:cs5296-demo@localhost:30567
+2026-04-20 20:41:31,428 INFO pika.adapters.utils.connection_workflow: Pika version 1.3.2 connecting to ('127.0.0.1', 30567)
+2026-04-20 20:41:31,429 INFO pika.adapters.utils.io_services_utils: Socket connected: <socket.socket fd=6, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=6, laddr=('127.0.0.1', 32888), raddr=('127.0.0.1', 30567)>
+2026-04-20 20:41:31,430 INFO pika.adapters.utils.connection_workflow: Streaming transport linked up: (<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x72bd09e28700>, _StreamingProtocolShim: <SelectConnection PROTOCOL transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x72bd09e28700> params=<URLParameters host=localhost port=30567 virtual_host=/ ssl=False>>).
+2026-04-20 20:41:31,436 INFO pika.adapters.utils.connection_workflow: AMQPConnector - reporting success: <SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x72bd09e28700> params=<URLParameters host=localhost port=30567 virtual_host=/ ssl=False>>
+2026-04-20 20:41:31,436 INFO pika.adapters.utils.connection_workflow: AMQPConnectionWorkflow - reporting success: <SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x72bd09e28700> params=<URLParameters host=localhost port=30567 virtual_host=/ ssl=False>>
+2026-04-20 20:41:31,437 INFO pika.adapters.blocking_connection: Connection workflow succeeded: <SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x72bd09e28700> params=<URLParameters host=localhost port=30567 virtual_host=/ ssl=False>>
+2026-04-20 20:41:31,438 INFO pika.adapters.blocking_connection: Created channel=1
+2026-04-20 20:41:31,443 INFO producer: phase 0: rate=5.0/s for 10.0s (payload=256B)
+2026-04-20 20:41:41,478 INFO producer: phase 1: rate=1000.0/s for 10.0s (payload=256B)
+2026-04-20 20:41:51,479 INFO producer: phase 2: rate=0.0/s for 180.0s (payload=256B)
+2026-04-20 20:44:51,580 INFO producer: sent 7105 messages in 200.1s (avg 35.5 msg/s)
+2026-04-20 20:44:51,580 INFO pika.adapters.blocking_connection: Closing connection (200): Normal shutdown
+2026-04-20 20:44:51,581 INFO pika.channel: Closing channel (200): 'Normal shutdown' on <Channel number=1 OPEN conn=<SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x72bd09e28700> params=<URLParameters host=localhost port=30567 virtual_host=/ ssl=False>>>
+2026-04-20 20:44:51,584 ERROR pika.adapters.utils.io_services_utils: _AsyncBaseTransport._produce() failed, aborting connection: error=ConnectionResetError(104, 'Connection reset by peer'); sock=<socket.socket fd=6, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=6, laddr=('127.0.0.1', 32888)>; Caller's stack:
+Traceback (most recent call last):
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 1103, in _on_socket_writable
+    self._produce()
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 819, in _produce
+    num_bytes_sent = self._sigint_safe_send(self._sock,
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 79, in retry_sigint_wrap
+    return func(*args, **kwargs)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 861, in _sigint_safe_send
+    return sock.send(data)
+ConnectionResetError: [Errno 104] Connection reset by peer
+Traceback (most recent call last):
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 1103, in _on_socket_writable
+    self._produce()
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 819, in _produce
+    num_bytes_sent = self._sigint_safe_send(self._sock,
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 79, in retry_sigint_wrap
+    return func(*args, **kwargs)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/utils/io_services_utils.py", line 861, in _sigint_safe_send
+    return sock.send(data)
+ConnectionResetError: [Errno 104] Connection reset by peer
+2026-04-20 20:44:51,585 INFO pika.adapters.utils.io_services_utils: _AsyncTransportBase._initate_abort(): Initiating abrupt asynchronous transport shutdown: state=1; error=ConnectionResetError(104, 'Connection reset by peer'); <socket.socket fd=6, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=6, laddr=('127.0.0.1', 32888)>
+2026-04-20 20:44:51,585 INFO pika.adapters.utils.io_services_utils: Deactivating transport: state=1; <socket.socket fd=6, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=6, laddr=('127.0.0.1', 32888)>
+2026-04-20 20:44:51,585 ERROR pika.adapters.base_connection: connection_lost: StreamLostError: ("Stream connection lost: ConnectionResetError(104, 'Connection reset by peer')",)
+2026-04-20 20:44:51,585 INFO pika.connection: AMQP stack terminated, failed to connect, or aborted: opened=True, error-arg=StreamLostError: ("Stream connection lost: ConnectionResetError(104, 'Connection reset by peer')",); pending-error=None
+2026-04-20 20:44:51,585 INFO pika.connection: Stack terminated due to StreamLostError: ("Stream connection lost: ConnectionResetError(104, 'Connection reset by peer')",)
+2026-04-20 20:44:51,586 INFO pika.adapters.utils.io_services_utils: Closing transport socket and unlinking: state=2; <socket.socket fd=6, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=6, laddr=('127.0.0.1', 32888)>
+2026-04-20 20:44:51,586 ERROR pika.adapters.blocking_connection: Unexpected connection close detected: StreamLostError: ("Stream connection lost: ConnectionResetError(104, 'Connection reset by peer')",)
+Traceback (most recent call last):
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/load-test/producer.py", line 164, in <module>
+    main()
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/click/core.py", line 1157, in __call__
+    return self.main(*args, **kwargs)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/click/core.py", line 1078, in main
+    rv = self.invoke(ctx)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/click/core.py", line 1434, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/click/core.py", line 783, in invoke
+    return __callback(*args, **kwargs)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/load-test/producer.py", line 160, in main
+    run(rabbitmq, queue, phases, output)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/load-test/producer.py", line 125, in run
+    connection.close()
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/blocking_connection.py", line 809, in close
+    channel.close(reply_code, reply_text)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/blocking_connection.py", line 1539, in close
+    self._flush_output(lambda: self.is_closed)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/blocking_connection.py", line 1353, in _flush_output
+    self._connection._flush_output(lambda: self.is_closed, *waiters)
+  File "/home/ubuntu/CS5296-Group5-Autoscaling/.venv-loadtest/lib/python3.10/site-packages/pika/adapters/blocking_connection.py", line 523, in _flush_output
+    raise self._closed_result.value.error
+pika.exceptions.StreamLostError: Stream connection lost: ConnectionResetError(104, 'Connection reset by peer')
+
+[1;36m==>[0m producer exited with 1; continuing to observation window
+
+[1;36m==>[0m Observing post-burst behaviour for 180s...
+
+[1;36m==>[0m Stopping collector.
+
+[1;36m==>[0m Trial done.
+  metrics: /home/ubuntu/CS5296-Group5-Autoscaling/results/raw/keda-run3.csv
+  sendlog: /home/ubuntu/CS5296-Group5-Autoscaling/results/raw/keda-run3-sendlog.csv
+[20:47:51] trial 6 OK (elapsed 392s)
+
+==============================================================
+BATCH COMPLETE at Mon Apr 20 20:47:51 UTC 2026
+Total wall time: 49 min 11 s
+All trials succeeded.
+
+==> results/raw/ listing
+drwxrwxr-x 2 ubuntu ubuntu   4096 Apr 20 20:41 .
+drwxr-xr-x 4 ubuntu ubuntu   4096 Apr 19 09:22 ..
+-rw-rw-r-- 1 ubuntu ubuntu     64 Apr 20 18:08 .gitkeep
+-rw-rw-r-- 1 ubuntu ubuntu 162728 Apr 20 20:02 baseline-run1-sendlog.csv
+-rw-rw-r-- 1 ubuntu ubuntu   7813 Apr 20 20:05 baseline-run1.csv
+-rw-rw-r-- 1 ubuntu ubuntu 161672 Apr 20 20:10 baseline-run2-sendlog.csv
+-rw-rw-r-- 1 ubuntu ubuntu   7891 Apr 20 20:13 baseline-run2.csv
+-rw-rw-r-- 1 ubuntu ubuntu 164136 Apr 20 20:19 baseline-run3-sendlog.csv
+-rw-rw-r-- 1 ubuntu ubuntu   7724 Apr 20 20:22 baseline-run3.csv
+-rw-rw-r-- 1 ubuntu ubuntu 158570 Apr 20 20:27 keda-run1-sendlog.csv
+-rw-rw-r-- 1 ubuntu ubuntu   7713 Apr 20 20:30 keda-run1.csv
+-rw-rw-r-- 1 ubuntu ubuntu 158944 Apr 20 20:36 keda-run2-sendlog.csv
+-rw-rw-r-- 1 ubuntu ubuntu   7345 Apr 20 20:39 keda-run2.csv
+-rw-rw-r-- 1 ubuntu ubuntu 155226 Apr 20 20:44 keda-run3-sendlog.csv
+-rw-rw-r-- 1 ubuntu ubuntu   7450 Apr 20 20:47 keda-run3.csv
+
+==> line counts
+   7447 results/raw/baseline-run1-sendlog.csv
+    193 results/raw/baseline-run1.csv
+   7399 results/raw/baseline-run2-sendlog.csv
+    195 results/raw/baseline-run2.csv
+   7511 results/raw/baseline-run3-sendlog.csv
+    190 results/raw/baseline-run3.csv
+   7258 results/raw/keda-run1-sendlog.csv
+    203 results/raw/keda-run1.csv
+   7275 results/raw/keda-run2-sendlog.csv
+    184 results/raw/keda-run2.csv
+   7106 results/raw/keda-run3-sendlog.csv
+    185 results/raw/keda-run3.csv
+  45146 total
+==============================================================
+collector stopped
