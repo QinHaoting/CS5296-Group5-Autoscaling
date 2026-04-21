@@ -1,0 +1,12 @@
+name: smoke
+description: baseline/keda smoke test - 500 msgs at 20/s, then drain
+phases:
+  - duration_sec: 3
+    rate_per_sec: 5
+    payload_bytes: 256
+  - duration_sec: 25
+    rate_per_sec: 20
+    payload_bytes: 256
+  - duration_sec: 30
+    rate_per_sec: 0
+    payload_bytes: 256
