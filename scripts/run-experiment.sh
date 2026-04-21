@@ -75,12 +75,21 @@ trap cleanup EXIT
 sleep 10
 
 say "Launching producer..."
+# Do not let a non-zero producer exit (e.g. pika's Normal-shutdown teardown
+# returning 1 under some Python/pika combos) abort the trial; we still want to
+# run the post-burst observation window so we can record scale-down behaviour.
+set +e
 (cd "$REPO_ROOT/load-test" && \
   python producer.py \
     --rabbitmq "$RABBITMQ_URL" \
     --queue "$QUEUE" \
     --pattern "$PATTERN" \
     --output "$SENDLOG_CSV")
+PRODUCER_RC=$?
+set -e
+if [[ "$PRODUCER_RC" -ne 0 ]]; then
+  say "producer exited with ${PRODUCER_RC}; continuing to observation window"
+fi
 
 say "Observing post-burst behaviour for ${OBS_DURATION}s..."
 sleep "$OBS_DURATION"
