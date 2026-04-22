@@ -1,0 +1,63 @@
+\section{Background and Related Work}
+\label{sec:background}
+
+\subsection{Horizontal Pod Autoscaler}
+\label{subsec:bg-hpa}
+The Kubernetes HPA~\cite{kubernetes2024hpa} runs a reconciliation loop
+with period controlled by the
+\texttt{--horizontal-pod-autoscaler-sync-period} flag (15~s by
+default). At each tick it queries \texttt{metrics-server}---itself
+refreshed every 15~s from \texttt{kubelet}/cAdvisor---for the
+target metric and computes the desired replica count via
+
+\vspace{-6pt}
+\begin{equation}
+  \label{eq:hpa}
+  n_\mathrm{desired} = \left\lceil n_\mathrm{current} \cdot
+  \frac{m_\mathrm{current}}{m_\mathrm{target}} \right\rceil,
+\end{equation}
+\vspace{-8pt}
+
+\noindent where $n_\mathrm{desired}$ is further clamped to the
+$[\mathrm{minReplicas},\,\mathrm{maxReplicas}]$ range. A
+\texttt{behavior} block governs how quickly the desired change takes
+effect: \texttt{stabilizationWindowSeconds} computes the running
+maximum over a rolling window (so transient dips do not immediately
+trigger scale-down), while a \texttt{policies} list such as
+\texttt{Percent 50\%/60s} caps the per-period scaling rate. When the
+signal is \texttt{cpu.Utilization}, $m_\mathrm{current}$ is the mean CPU
+usage divided by \texttt{requests.cpu}. Consequently, a pod whose CPU
+is pinned at \texttt{limits.cpu} reports a utilisation equal to the
+\emph{static} limit-to-request ratio rather than the \emph{dynamic}
+load on the queue it serves---a structural limitation we revisit
+in Section~\ref{sec:results}.
+
+\subsection{Kubernetes Event-Driven Autoscaling}
+\label{subsec:bg-keda}
+KEDA~\cite{keda2024} is a CNCF graduated project that extends
+Kubernetes with the \texttt{ScaledObject} custom resource. It ships
+with more than 60 scalers for message brokers, databases, HTTP
+endpoints, and custom sources~\cite{keda2024scalers}, and internally
+materialises a hidden HPA whose target metric is of type
+\texttt{External} and is served by the KEDA metrics adapter. Thus the
+control \emph{mechanism} is identical to the standard HPA; the only
+additional machinery is a short-lived metric pipeline that translates
+a business signal (for example, RabbitMQ queueLength) into a scaling
+ratio that Eq.~\ref{eq:hpa} can consume. For a
+\texttt{rabbitmq/QueueLength} trigger the operator specifies a
+messages-per-replica target~$T$, and KEDA reports
+$m_\mathrm{current}/m_\mathrm{target} = Q/T$, where $Q$ is the
+instantaneous queue depth. The desired replica count therefore
+simplifies to $\lceil Q / T \rceil$, independent of CPU usage.
+
+\subsection{Related Work}
+\label{subsec:bg-related}
+Prior work spans surveys of reactive and predictive autoscaling
+algorithms~\cite{qu2018taxonomy}, Kubernetes-focused elasticity
+benchmarks~\cite{nguyen2020hpa, medel2016modelling}, and event-driven
+or serverless scaling studies~\cite{shahrad2020serverless}. What is
+less common is a tightly controlled, same-hardware comparison between a
+CPU-driven HPA baseline and a business-metric-driven controller. The
+present study narrows the scope deliberately: application, broker,
+hardware, \texttt{behavior} block, and load pattern are held constant,
+so the only independent variable is the scaling signal itself.

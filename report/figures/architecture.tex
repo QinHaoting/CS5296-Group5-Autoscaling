@@ -1,0 +1,44 @@
+% End-to-end architecture. Drawn in TikZ so it scales cleanly in PDF.
+\begin{tikzpicture}[
+  font=\small,
+  box/.style={draw, rounded corners=2pt, align=center, inner sep=3pt,
+              minimum height=7mm},
+  node distance=3mm and 5mm,
+]
+
+% ---------- Laptop (load generator + analysis) ----------
+\node[box, fill=blue!8]                         (producer) {Python producer\\{\tiny \texttt{load-test/producer.py}}};
+\node[box, fill=blue!8, below=of producer]      (analysis) {Analysis\\{\tiny \texttt{analysis/plot.py}}};
+\node[draw, dashed, rounded corners, fit=(producer) (analysis),
+      inner sep=4pt, label={[yshift=-2pt]above:\textbf{Laptop}}] (laptop) {};
+
+% ---------- EC2 node ----------
+\node[box, fill=orange!15, right=18mm of producer] (rmq)      {RabbitMQ\\{\tiny ns: \texttt{rabbitmq}}};
+
+\node[box, fill=green!10, right=6mm of rmq, yshift=9mm]  (base) {HPA consumer\\{\tiny ns: \texttt{baseline}, cpu=50\%}};
+\node[box, fill=red!10,   right=6mm of rmq, yshift=-9mm] (keda) {KEDA consumer\\{\tiny ns: \texttt{keda}, queueLen=100}};
+
+\node[box, fill=gray!10, below=9mm of rmq]     (collect)  {Collector\\{\tiny \texttt{scripts/collect-metrics.sh}}};
+
+\node[draw, dashed, rounded corners,
+      fit=(rmq) (base) (keda) (collect),
+      inner sep=6pt,
+      label={[yshift=-2pt]above:\textbf{EC2 \texttt{m5.large} (K3s v1.30)}}] (ec2) {};
+
+% ---------- Arrows ----------
+\draw[-latex] (producer.east) -- ++(0.6,0) |- (rmq.west |- base) node[midway, above,
+      font=\scriptsize] {AMQP};
+\draw[-latex] (producer.east) -- ++(0.6,0) |- (rmq.west |- keda);
+
+\draw[-latex] (rmq.north east) -- ++(0.4,0) |- (base.west);
+\draw[-latex] (rmq.south east) -- ++(0.4,0) |- (keda.west);
+
+\draw[-latex, dashed] (collect.north) -- (rmq.south) node[midway, right,
+      font=\scriptsize] {mgmt API};
+\draw[-latex, dashed] (collect.east) -| ($(base.south)+(-3mm,0)$);
+\draw[-latex, dashed] (collect.east) -| ($(keda.south)+(-3mm,0)$);
+
+\draw[-latex, dashed] (collect.west) -- ++(-5mm,0)
+      node[pos=0.6, above, font=\scriptsize] {CSV} |- (analysis.east);
+
+\end{tikzpicture}

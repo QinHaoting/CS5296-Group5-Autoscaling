@@ -1,0 +1,38 @@
+\section{Discussion}
+\label{sec:discussion}
+
+\paragraph{The signal matters more than the parameters.}~The most
+consequential finding of this study is that KEDA's advantage is
+rooted in \emph{what} it measures rather than in \emph{how} the
+underlying HPA control block is configured. Both scalers were given
+an identical $60$\,s stabilisation window, an identical
+\texttt{Percent 50\%/60s} scale-down policy, and an identical scale-up
+budget; only the signal differed. Operators tempted to tune the HPA
+\texttt{behavior} block in an attempt to recover KEDA's observed
+responsiveness are therefore optimising a second-order variable.
+
+\paragraph{Why CPU fails on queue-backed workloads.}~For a
+CPU-bound consumer governed by a strict \texttt{limits.cpu}, the CPU
+signal saturates the moment the queue has any residual work: the
+reported utilisation becomes the ratio of limit to request,
+independent of the backlog. The HPA can thus neither \emph{estimate}
+the deficit while the burst is active nor \emph{release} capacity
+while the drain is still in flight. Queue length, in contrast, is a
+direct measurement of outstanding work and carries both pieces of
+information simultaneously.
+
+\paragraph{When HPA remains reasonable.}~For synchronous HTTP services
+without an intermediate queue, CPU remains a plausible scaling signal
+and the HPA's simplicity is attractive. For queue consumers, a hybrid
+policy is often the pragmatic production choice: let queue length drive
+normal elasticity and retain CPU-based limits as a guardrail against
+runaway scale-up.
+
+\paragraph{Limitations and next steps.}~The study is confined to a
+single-node cluster, one EC2 instance type, one broker, and three
+replications per group; it therefore demonstrates a clear directional
+effect rather than a universal law. The $\approx\,355$\,s post-burst
+window also truncates the Baseline HPA's scale-down tail, so the
+observed cost gap is conservative. Future work should sweep
+\texttt{cpu} and queue-length targets, compare against HPA with native
+\texttt{External} metrics, and repeat the study on multi-node clusters.

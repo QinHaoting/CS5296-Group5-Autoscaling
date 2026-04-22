@@ -1,0 +1,71 @@
+\section{System Design}
+\label{sec:design}
+
+\subsection{Architecture Overview}
+\label{subsec:arch}
+Fig.~\ref{fig:arch} depicts the end-to-end deployment. A single AWS
+EC2 \texttt{m5.large} instance ($2$\,vCPU, $8$\,GiB RAM) hosts a
+lightweight K3s~\cite{rancher2024k3s} v1.30 cluster with three
+application namespaces: \texttt{rabbitmq} for the shared broker and
+\texttt{baseline}/\texttt{keda} for the two experiment groups. The
+\texttt{keda} namespace also hosts the KEDA operator and metrics
+adapter installed by Helm. A
+Python producer running on the evaluator's workstation injects load
+into either \texttt{baseline-queue} or \texttt{keda-queue} over AMQP.
+A shell-based collector (\texttt{scripts/collect-metrics.sh}) polls
+the RabbitMQ Management API~\cite{broadcom2024rabbitmq} and
+\texttt{kubectl} at $\approx$\,$1$~Hz and writes per-second
+comma-separated-value (CSV) rows; the same script runs for both
+groups so the observation pipeline is identical.
+
+\begin{figure}[t]
+  \centering
+  \input{figures/architecture.tex}
+  \caption{End-to-end architecture on a single AWS EC2 node. The
+  consumer image is shared by both groups; the only variable between
+  them is the scaling policy attached to each Deployment.}
+  \label{fig:arch}
+\end{figure}
+
+\subsection{Consumer Application}
+\label{subsec:consumer}
+Both groups run the same Spring Boot~\cite{vmware2024springboot}
+consumer image (\texttt{htasteqin/cs5296-consumer:v1.0}). Each message
+triggers a $\approx$\,$200$\,ms busy-wait so that the workload is
+CPU-bound. This is a deliberate design choice: a
+\texttt{Thread.sleep} would render HPA blind to the workload---since
+the only available signal is CPU utilisation---and would therefore
+bias the comparison before it begins. The pod resource settings are
+\texttt{requests: 100m~CPU / 256~MiB} and
+\texttt{limits: 300m~CPU / 512~MiB}.
+
+\subsection{Scaling Strategies}
+\label{subsec:strategies}
+The two scalers share identical \texttt{minReplicas}$\,=\,$1 and
+\texttt{maxReplicas}$\,=\,$6 (dictated by the 2\,vCPU node), together
+with an identical \texttt{behavior} block:
+
+\begin{itemize}[leftmargin=*,itemsep=0pt,topsep=1pt]
+  \item \texttt{scaleUp}: \texttt{stabilizationWindowSeconds}\,=\,0;
+        policies \texttt{Percent 100\%/15s} $\cup$
+        \texttt{Pods 4/15s}, \texttt{selectPolicy}\,=\,\texttt{Max}.
+  \item \texttt{scaleDown}: \texttt{stabilizationWindowSeconds}\,=\,60\,s;
+        policy \texttt{Percent 50\%/60s}.
+\end{itemize}
+
+\noindent Only the scaling \emph{signal} differs:
+\textbf{Baseline HPA} uses \texttt{cpu.Utilization} with a
+$50\%$ target; \textbf{KEDA} uses a \texttt{rabbitmq}
+\texttt{QueueLength} trigger with target~$T\,=\,100$
+messages/replica and \texttt{pollingInterval}\,=\,5\,s.
+
+\subsection{Control Variables}
+\label{subsec:controls}
+To isolate the effect of the scaling signal we hold all non-signal
+parameters constant across the two groups: identical Docker image,
+identical \texttt{requests}/\texttt{limits}, identical
+$\approx$\,$200$\,ms per-message processing cost, a shared RabbitMQ
+broker (separate queues per group to prevent interference), the same
+EC2 node, and the same burst pattern. The only independent variable
+is therefore the scaling signal---CPU utilisation versus queue
+length.

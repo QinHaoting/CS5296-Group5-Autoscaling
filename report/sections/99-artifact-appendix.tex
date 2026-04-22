@@ -1,0 +1,78 @@
+\appendix
+\section*{Artifact Appendix}
+\addcontentsline{toc}{section}{Artifact Appendix}
+
+\subsection*{A.1 Abstract}
+The artifact is a self-contained set of scripts and Kubernetes
+manifests that (i)~provisions a single-node K3s cluster on an AWS
+EC2 \texttt{m5.large} instance, (ii)~deploys two identical Spring
+Boot consumers scaled by the Baseline HPA and by KEDA respectively,
+(iii)~injects a burst workload via a Python producer and records
+per-second metrics, and (iv)~produces six summary figures and a
+headline CSV. A short shell loop around
+\texttt{scripts/run-experiment.sh} reproduces the six formal trials.
+
+\subsection*{A.2 Check-list}
+\begin{itemize}[leftmargin=*,itemsep=0pt]
+  \item \emph{Compilation}: Maven~3.9; Docker~24.x (or Colima);
+        \texttt{docker buildx} for multi-architecture builds.
+  \item \emph{Run-time}: Ubuntu~22.04~LTS; K3s v1.30; Java~17;
+        Python~3.10+.
+  \item \emph{Hardware}: AWS EC2 \texttt{m5.large} ($2$\,vCPU,
+        $8$\,GiB RAM); \texttt{t3.medium} is also viable provided
+        that \texttt{maxReplicas} remains $\le 6$.
+  \item \emph{Execution}: $\approx\,49$\,min of wall time for
+        the $6$ trials, plus $120$\,s of cooldown between trials.
+  \item \emph{Output}: $12$ per-trial CSVs in \texttt{results/raw/},
+        one aggregated \texttt{summary.csv}, and six PNG figures in
+        \texttt{results/figures/}.
+  \item \emph{Licence}: MIT, publicly available on GitHub.
+\end{itemize}
+
+\subsection*{A.3 How to access}
+Source code, raw data, and figures:
+\url{https://github.com/QinHaoting/CS5296-Group5-Autoscaling}.
+
+\subsection*{A.4 Installation and deployment}
+\begin{enumerate}[leftmargin=*,itemsep=0pt]
+  \item Build and push the consumer image:\\
+        \texttt{docker buildx build --platform linux/amd64} \\
+        \texttt{\ \ -t \textlangle dockerhub\textrangle/cs5296-consumer:v1.0 --push consumer/}
+  \item On the EC2 node, \texttt{bash scripts/setup.sh} installs
+        K3s, Helm, \texttt{metrics-server}, KEDA, and the
+        repository-owned RabbitMQ manifests.
+  \item Apply the two scaling policies:\\
+        \texttt{export CONSUMER\_IMAGE=\textlangle image\textrangle} \\
+        \texttt{bash scripts/deploy-baseline.sh \&\& \\
+        bash scripts/deploy-keda.sh}
+\end{enumerate}
+
+\subsection*{A.5 Experiment workflow}
+\begin{verbatim}
+# Single trial, either group:
+bash scripts/run-experiment.sh baseline 1
+bash scripts/run-experiment.sh keda     1
+
+# Full batch (3 runs per group):
+for run in 1 2 3; do bash scripts/run-experiment.sh baseline "$run"; done
+for run in 1 2 3; do bash scripts/run-experiment.sh keda "$run"; done
+
+# Offline analysis on the evaluator's laptop:
+python analysis/plot.py
+\end{verbatim}
+
+\subsection*{A.6 Expected result}
+Six PNG figures (\texttt{fig1-run1-timeline.png} through
+\texttt{fig3-run3-timeline.png} for per-run timelines, and
+\texttt{fig4-response-bar.png}, \texttt{fig5-scale-down-bar.png},
+\texttt{fig6-overshoot-cost.png} for the aggregates), together with
+a \texttt{summary.csv} containing $10$ metrics per trial. KEDA
+reacts $\approx\,10$\,s faster than the Baseline HPA, drains the
+queue $\approx\,12$\,s sooner, and is the only scaler to trigger
+scale-down during the trial.
+
+\subsection*{A.7 Troubleshooting}
+Full diagnostics appear in \texttt{docs/ARTIFACT.md} and in
+the detailed execution manual under the course planning folder
+(\texttt{Group/plan/}), especially its execution log and formal
+experiment narrative appendices.

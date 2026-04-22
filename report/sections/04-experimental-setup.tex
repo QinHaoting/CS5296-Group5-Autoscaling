@@ -1,0 +1,74 @@
+\section{Experimental Setup}
+\label{sec:setup}
+
+\subsection{Environment}
+\label{subsec:env}
+\begin{itemize}[leftmargin=*,itemsep=0pt,topsep=1pt]
+  \item \textbf{Cloud}: AWS EC2 \texttt{m5.large} ($2$\,vCPU,
+        $8$\,GiB RAM, \texttt{us-west-2}), Ubuntu~22.04~LTS.
+  \item \textbf{Cluster}: K3s v1.30 (single-node, embedded SQLite
+        data store), Helm~3, \texttt{metrics-server} v0.7, and
+        KEDA~v2.13 installed via its official Helm chart.
+  \item \textbf{Broker}: a repository-owned RabbitMQ
+        \texttt{StatefulSet} using image \texttt{rabbitmq:3.12-management},
+        with \texttt{limits.cpu}\,=\,$1\,000$\,m,
+        \texttt{limits.memory}\,=\,$1$\,GiB, and
+        \texttt{tcpSocket:5672} readiness/liveness probes to avoid
+        false failures on the constrained node.
+\end{itemize}
+
+\subsection{Workload}
+\label{subsec:workload}
+The pattern defined in
+\texttt{load-test/patterns/burst.yaml} consists of three phases:
+a $10$\,s warm-up at $5$\,messages/s (so that the collector captures
+a steady-state baseline at \texttt{replicas}\,=\,1), a $10$\,s burst
+\emph{targeting} $1\,000$\,messages/s, and $180$\,s of silence. The
+harness script \texttt{run-experiment.sh} also waits $10$\,s before
+launching the producer so the collector can record a baseline, and
+then appends a further $180$\,s post-burst observation window. Each
+trial therefore lasts $\approx$\,$390$\,s wall-clock, with roughly
+$355$--$360$\,s of observation after the burst ends.
+
+\paragraph{Producer ceiling.}~The
+\texttt{pika}~\cite{pika2024} \texttt{BlockingConnection.basic\_publish}
+call is a synchronous RPC that saturates at $\approx$\,$740$\,msg/s on
+the \texttt{m5.large} node; consequently, the realised burst injects
+$7\,100$--$7\,500$ messages rather than the nominal $10\,000$. The
+ceiling affects both groups identically---the same producer publishes
+to both queues with the same pattern---so it does not bias the
+comparison.
+
+\subsection{Metrics and Collection}
+\label{subsec:metrics}
+The collector \texttt{scripts/collect-metrics.sh} polls
+\texttt{kubectl} for pod readiness and the RabbitMQ Management API
+for queue statistics, emitting an 8-column CSV (see
+artifact appendix). We derive three metric axes:
+
+\begin{itemize}[leftmargin=*,itemsep=0pt,topsep=1pt]
+  \item \textbf{Responsiveness.} Reaction latency (burst start
+        $\rightarrow$ first new pod Ready), scale-up time (burst start
+        $\rightarrow$ peak pod count), and drain time (burst end
+        $\rightarrow$ \texttt{queue\_depth}\,=\,0).
+  \item \textbf{User-visible effect.} Average delivery rate during the
+        drain window and total messages delivered per trial.
+  \item \textbf{Resource utilisation.} Scale-down-start time (burst end
+        $\rightarrow$ first pod removal), pods still Ready at the end
+        of the trial ($\approx$\,$355$\,s post-burst), and
+        pod-seconds overshoot, defined as
+        $\int \max\{0,\,\mathrm{pods}(t) - \mathrm{minReplicas}\}\,dt$
+        over the entire trial.
+\end{itemize}
+
+\subsection{Trial Protocol}
+\label{subsec:protocol}
+For each of the two groups we run $n\,=\,3$ independent trials and
+report the sample mean with one sample standard deviation. Between
+trials the Deployment is scaled back to $1$ replica and the target
+queue is purged. Each archived raw CSV therefore corresponds to the
+same procedure: reset deployment, purge queue, capture a baseline,
+run the burst pattern, then observe the drain and any scale-down.
+All six formal trials were executed sequentially on 2026-04-20 and the
+committed artefacts under \texttt{results/raw/} are the ground truth
+for the statistics reported in this paper.

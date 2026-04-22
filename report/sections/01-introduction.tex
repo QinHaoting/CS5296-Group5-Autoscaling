@@ -1,0 +1,60 @@
+\section{Introduction}
+\label{sec:intro}
+
+Elasticity is a defining property of cloud computing~\cite{mell2011nist}:
+cloud-hosted applications acquire additional compute capacity when
+demand rises and release it when demand falls. In contemporary
+asynchronous architectures, that demand typically arrives through
+message queues---for example, the order-ingestion pipelines behind
+e-commerce flash sales, telemetry fan-in from Internet-of-Things
+fleets, or job bursts in machine-learning inference back-ends.
+Whenever the backlog grows, the service consuming those messages must
+scale out \emph{before} the queue becomes deep enough to breach
+service-level objectives.
+
+Kubernetes~\cite{kubernetes2024} has become the de facto container
+orchestrator and ships with the \emph{Horizontal Pod Autoscaler}
+(HPA)~\cite{kubernetes2024hpa}, which adjusts a Deployment's replica
+count so that the observed CPU or memory utilisation approaches an
+operator-specified target. CPU, however, is a \emph{lagging} indicator
+for queue-backed workloads: by the time it crosses the scaling
+threshold, the backlog may already be large, and in resource-capped
+pods the reported utilisation can be driven entirely by the
+\texttt{limits.cpu}/\texttt{requests.cpu} ratio rather than by the
+actual workload. Kubernetes Event-Driven Autoscaling
+(KEDA)~\cite{keda2024}, a Cloud Native Computing Foundation (CNCF)
+graduated project, addresses this limitation by allowing operators to
+scale directly on business metrics such as RabbitMQ queue length.
+Internally KEDA materialises a hidden HPA and feeds it the external
+metric, so the underlying control loop is identical---only the signal
+differs.
+
+\textbf{Research question.}~\emph{Given an identical queue-backed
+consumer under a flash-crowd workload, how do Baseline HPA (CPU signal)
+and KEDA (queueLength signal) differ along three axes---responsiveness,
+user-visible effect, and resource utilisation---once all other
+scaling parameters are held equal?}
+
+\textbf{Contributions.}~This paper makes three contributions:
+\begin{itemize}[leftmargin=*,itemsep=0pt,topsep=2pt]
+  \item A reproducible benchmarking harness, open-sourced on
+        GitHub~\cite{group5artifact2026}, that provisions a K3s cluster
+        on a single AWS EC2 \texttt{m5.large} node, deploys two
+        identical Spring Boot consumers, and injects a configurable
+        burst workload via RabbitMQ.
+  \item A controlled comparison of Baseline HPA and KEDA across three
+        metric axes, covering both scale-up and scale-down behaviour,
+        with every experimental variable fixed except the scaling
+        signal.
+  \item A quantitative explanation of why the Baseline HPA cannot shrink
+        the replica set within the trial window: the CPU signal remains
+        pinned at the pod's \texttt{limits.cpu} throughout the drain and
+        therefore does not descend until \emph{after} the queue is empty.
+\end{itemize}
+
+\textbf{Roadmap.}~Section~\ref{sec:background} reviews the HPA and KEDA
+control loops. Section~\ref{sec:design} describes our system design.
+Section~\ref{sec:setup} documents the experimental methodology.
+Section~\ref{sec:results} presents the measurements.
+Section~\ref{sec:discussion} discusses practitioner implications, and
+Section~\ref{sec:conclusion} concludes.

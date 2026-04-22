@@ -1,0 +1,31 @@
+\begin{abstract}
+Cloud-native microservices rely on elastic scaling to absorb volatile
+workloads. Kubernetes ships two commonly used autoscalers: the
+resource-based Horizontal Pod Autoscaler (HPA) and the event-driven
+Kubernetes Event-Driven Autoscaling (KEDA) framework. We conduct a
+controlled comparative study of the two on a RabbitMQ-backed Spring
+Boot consumer deployed on a single-node K3s cluster hosted on an AWS
+EC2 \texttt{m5.large} instance. Under an identical flash-crowd workload
+(a 10~s burst targeting 1\,000~messages/s), three replications per group
+are collected and compared along three axes: responsiveness,
+user-visible effect, and resource utilisation. All non-signal scaling
+parameters are held constant---in particular the \texttt{scaleDown}
+\texttt{stabilizationWindowSeconds} is fixed at 60~s and the
+\texttt{scaleDown} rate policy at 50\,\%/60~s for both groups. Under
+this configuration, KEDA (queueLength signal) reacts $10.4$~s faster
+than Baseline HPA (CPU signal) on average
+($63.4 \pm 3.4$~s versus $73.8 \pm 8.3$~s), drains the backlog
+$12.2$~s sooner, and begins to scale down $\approx$\,$327$~s after the
+burst ends, whereas the Baseline HPA does not release any capacity
+during the entire 355~s post-burst trial window. The root cause is
+the signal's information asymmetry: CPU utilisation remains pinned at
+the \texttt{limits.cpu} ceiling throughout the drain, structurally
+preventing HPA from inferring a reduced workload, while queue length
+decreases monotonically and thus serves as a leading indicator.
+Within the observed window both groups still hit the same peak of six
+pods and have near-identical pod-seconds overshoot, so KEDA's concrete
+resource advantage is earlier capacity release rather than a lower peak
+replica count. For queue-backed event-driven workloads,
+queue-length-based autoscaling delivers measurable quality-of-service
+gains that parameter tuning alone cannot recover.
+\end{abstract}

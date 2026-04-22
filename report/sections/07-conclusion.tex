@@ -1,0 +1,15 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+This paper has presented a controlled comparison of Baseline HPA (CPU)
+and KEDA (queueLength) for a RabbitMQ-backed Spring Boot consumer
+running on a single-node K3s cluster. With all non-signal parameters
+held equal over $n\,=\,3$ trials per group, KEDA reacted $10.4$\,s
+faster, drained the backlog $12.2$\,s sooner, and was the only scaler
+to release capacity during the trial; the Baseline HPA's CPU signal
+remained pinned at the pod's \texttt{limits.cpu} throughout the drain
+and therefore could not trigger a downscale until after the backlog
+was gone. For queue-backed microservices, scaling on the business
+metric is not a preference but a measurable quality-of-service
+improvement---independent of how aggressively the HPA
+\texttt{behavior} block is tuned.

@@ -1,0 +1,84 @@
+% ====================================================================
+% CS5296 Cloud Computing -- Spring 2026 -- Group 5 final report
+%
+% Compliant with the course style: A4, single column, single spaced,
+% 12 pt Times New Roman. Page budget: 9 pages including references,
+% excluding the Artifact Appendix.
+% ====================================================================
+
+\documentclass[a4paper,12pt]{article}
+
+% --- Packages ---
+\usepackage[margin=1in]{geometry}
+\usepackage{mathptmx}                 % Times New Roman for text & math
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{cite}
+\usepackage{xcolor}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{listings}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usetikzlibrary{positioning,fit,calc}
+\usepackage{amsmath}
+\usepackage{microtype}
+
+% --- Layout tweaks ---
+\setlength{\parskip}{2pt}
+\setlength{\parindent}{0pt}
+\setlength{\textfloatsep}{8pt plus 2pt minus 2pt}
+\setlength{\floatsep}{8pt plus 2pt minus 2pt}
+\setlength{\intextsep}{8pt plus 2pt minus 2pt}
+\setlength{\abovecaptionskip}{4pt}
+\setlength{\belowcaptionskip}{2pt}
+\hypersetup{
+  colorlinks = true,
+  linkcolor  = blue!50!black,
+  citecolor  = blue!50!black,
+  urlcolor   = blue!50!black,
+}
+
+% --- IEEE-style numbering for sections, subsections and tables ------
+\renewcommand{\thesection}{\Roman{section}}
+\renewcommand{\thesubsection}{\thesection-\Alph{subsection}}
+\renewcommand{\thetable}{\Roman{table}}
+
+% --- Figure/table caption style (IEEE convention: bold label, then ".") ---
+\captionsetup{labelfont=bf, labelsep=period, font=small}
+
+% --- Title block --------------------------------------------------------
+\title{\textbf{Baseline vs.\ Event-Driven Autoscaling in Kubernetes: \\
+A Controlled Comparison of HPA and KEDA for a Queue-Backed Microservice}}
+\author{%
+  Group~5 \\
+  \small CS5296 Cloud Computing, Spring 2026, City University of Hong Kong%
+}
+\date{April 2026}
+
+\begin{document}
+\maketitle
+
+\input{sections/00-abstract}
+\input{sections/01-introduction}
+\input{sections/02-background}
+\input{sections/03-system-design}
+\input{sections/04-experimental-setup}
+\input{sections/05-results}
+\input{sections/06-discussion}
+\input{sections/07-conclusion}
+
+% --- References ---------------------------------------------------------
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+% --- Artifact Appendix (does not count towards the 9-page limit) --------
+\clearpage
+\input{sections/99-artifact-appendix}
+
+\end{document}
