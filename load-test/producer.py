@@ -29,6 +29,7 @@ from pathlib import Path
 
 import click
 import pika
+from pika.exceptions import AMQPError, StreamLostError
 import yaml
 
 log = logging.getLogger("producer")
@@ -122,7 +123,11 @@ def run(
         if out_file is not None:
             out_file.close()
     finally:
-        connection.close()
+        if connection.is_open:
+            try:
+                connection.close()
+            except (AMQPError, StreamLostError):
+                log.warning("connection already closed by broker during shutdown", exc_info=True)
 
 
 @click.command(context_settings={"show_default": True})

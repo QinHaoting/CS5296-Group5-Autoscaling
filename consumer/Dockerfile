@@ -10,9 +10,13 @@ COPY src ./src
 RUN mvn -B -q clean package -DskipTests
 
 # ------------------------------------------------------------------
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:17-jre-jammy
 
-RUN addgroup -S app && adduser -S app -G app
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends wget \
+ && rm -rf /var/lib/apt/lists/* \
+ && groupadd --system app \
+ && useradd --system --gid app --create-home app
 WORKDIR /app
 COPY --from=build /src/target/consumer.jar /app/consumer.jar
 RUN chown -R app:app /app

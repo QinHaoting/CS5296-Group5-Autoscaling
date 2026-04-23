@@ -151,7 +151,10 @@ def main() -> None:
     fig_dir.mkdir(parents=True, exist_ok=True)
 
     trials = discover_trials(raw_dir)
-    print(f"discovered trials: baseline={len(trials["baseline"])}, keda={len(trials['keda'])}")
+    print(
+        f"discovered trials: baseline={len(trials['baseline'])}, "
+        f"keda={len(trials['keda'])}"
+    )
     if not any(trials.values()):
         raise SystemExit(f"no trial CSVs found in {raw_dir}")
 

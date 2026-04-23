@@ -42,8 +42,9 @@ case "$GROUP" in
 esac
 
 RABBITMQ_URL="${RABBITMQ_URL:-amqp://admin:cs5296-demo@localhost:30567}"
-PATTERN="${PATTERN:-$REPO_ROOT/load-test/patterns/burst.yaml}"
+PATTERN="${PATTERN:-$REPO_ROOT/load-test/patterns/burst-active.yaml}"
 OBS_DURATION="${OBS_DURATION:-180}"
+PYTHON_BIN="${PYTHON_BIN:-python3}"
 
 METRICS_CSV="$REPO_ROOT/results/raw/${GROUP}-run${RUN}.csv"
 SENDLOG_CSV="$REPO_ROOT/results/raw/${GROUP}-run${RUN}-sendlog.csv"
@@ -76,7 +77,7 @@ sleep 10
 
 say "Launching producer..."
 (cd "$REPO_ROOT/load-test" && \
-  python producer.py \
+  "$PYTHON_BIN" producer.py \
     --rabbitmq "$RABBITMQ_URL" \
     --queue "$QUEUE" \
     --pattern "$PATTERN" \

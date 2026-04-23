@@ -1,0 +1,13 @@
+# Burst traffic pattern used by run-experiment.sh.
+#
+# This file only describes the active publish window. The post-burst observation
+# period is handled by scripts/run-experiment.sh via OBS_DURATION.
+name: burst-active
+description: 10-second warm-up plus 10-second burst, no built-in observation tail
+phases:
+  - duration_sec: 10
+    rate_per_sec: 5
+    payload_bytes: 256
+  - duration_sec: 10
+    rate_per_sec: 1000
+    payload_bytes: 256

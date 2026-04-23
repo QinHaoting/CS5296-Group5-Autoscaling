@@ -1,0 +1,10 @@
+PENDING_MANUAL_RECORDING_UPLOAD
+
+Replace this file with the public or unlisted URL of the fresh demo video
+after recording and uploading it.
+
+Suggested source material for the recording:
+- docs/DEMO.md
+- report/main.pdf
+- results/summary.csv
+- results/figures/
