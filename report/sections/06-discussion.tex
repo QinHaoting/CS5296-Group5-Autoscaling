@@ -1,38 +1,10 @@
 \section{Discussion}
 \label{sec:discussion}
 
-\paragraph{The signal matters more than the parameters.}~The most
-consequential finding of this study is that KEDA's advantage is
-rooted in \emph{what} it measures rather than in \emph{how} the
-underlying HPA control block is configured. Both scalers were given
-an identical $60$\,s stabilisation window, an identical
-\texttt{Percent 50\%/60s} scale-down policy, and an identical scale-up
-budget; only the signal differed. Operators tempted to tune the HPA
-\texttt{behavior} block in an attempt to recover KEDA's observed
-responsiveness are therefore optimising a second-order variable.
+\textbf{The scaling signal is the main design choice.} The experiment shows that autoscaling quality is not only a matter of tuning thresholds and cooldown periods. HPA and KEDA share the same Kubernetes HPA control mechanism in this study, and we intentionally keep their scale-up and scale-down policies identical. The observed difference comes from the metric: CPU utilisation is a pod-local symptom, while queue length is a direct measurement of pending work.
 
-\paragraph{Why CPU fails on queue-backed workloads.}~For a
-CPU-bound consumer governed by a strict \texttt{limits.cpu}, the CPU
-signal saturates the moment the queue has any residual work: the
-reported utilisation becomes the ratio of limit to request,
-independent of the backlog. The HPA can thus neither \emph{estimate}
-the deficit while the burst is active nor \emph{release} capacity
-while the drain is still in flight. Queue length, in contrast, is a
-direct measurement of outstanding work and carries both pieces of
-information simultaneously.
+\textbf{Why CPU is a weak signal for this workload.} CPU is useful when request pressure and pod CPU usage move together. That assumption breaks down for a queue consumer with a finite backlog. During the drain phase, CPU can stay high even though the workload is becoming smaller every second. This causes the baseline HPA to preserve maximum capacity until the backlog is gone. From a service perspective, that is late information: the controller only learns that the burst is over after the system has already finished handling it.
 
-\paragraph{When HPA remains reasonable.}~For synchronous HTTP services
-without an intermediate queue, CPU remains a plausible scaling signal
-and the HPA's simplicity is attractive. For queue consumers, a hybrid
-policy is often the pragmatic production choice: let queue length drive
-normal elasticity and retain CPU-based limits as a guardrail against
-runaway scale-up.
+\textbf{Practical recommendation.} For production queue-backed services, event-driven scaling should be considered the primary scaling path. CPU-based scaling can still be valuable as a guardrail, for example to detect unusually expensive messages, bugs, or unexpected compute pressure. A practical design is therefore hybrid: scale normal elasticity from backlog or lag, and retain resource metrics for safety limits and alerting.
 
-\paragraph{Limitations and next steps.}~The study is confined to a
-single-node cluster, one EC2 instance type, one broker, and three
-replications per group; it therefore demonstrates a clear directional
-effect rather than a universal law. The $\approx\,355$\,s post-burst
-window also truncates the Baseline HPA's scale-down tail, so the
-observed cost gap is conservative. Future work should sweep
-\texttt{cpu} and queue-length targets, compare against HPA with native
-\texttt{External} metrics, and repeat the study on multi-node clusters.
+\textbf{Limitations.} This study uses a single-node K3s cluster, one EC2 instance type, one broker, one consumer implementation, and three repetitions per strategy. It is strong enough to demonstrate the directional effect of the signal, but it is not a universal benchmark for all Kubernetes clusters. The post-burst observation window also ends before the baseline HPA scales down, so the reported cost difference is conservative. Future work should test multi-node clusters, longer tails, different queue-length targets, different CPU requests/limits, and HPA driven by external metrics without KEDA.

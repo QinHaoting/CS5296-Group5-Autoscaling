@@ -3,69 +3,32 @@
 
 \subsection{Architecture Overview}
 \label{subsec:arch}
-Fig.~\ref{fig:arch} depicts the end-to-end deployment. A single AWS
-EC2 \texttt{m5.large} instance ($2$\,vCPU, $8$\,GiB RAM) hosts a
-lightweight K3s~\cite{rancher2024k3s} v1.30 cluster with three
-application namespaces: \texttt{rabbitmq} for the shared broker and
-\texttt{baseline}/\texttt{keda} for the two experiment groups. The
-\texttt{keda} namespace also hosts the KEDA operator and metrics
-adapter installed by Helm. A
-Python producer running on the evaluator's workstation injects load
-into either \texttt{baseline-queue} or \texttt{keda-queue} over AMQP.
-A shell-based collector (\texttt{scripts/collect-metrics.sh}) polls
-the RabbitMQ Management API~\cite{broadcom2024rabbitmq} and
-\texttt{kubectl} at $\approx$\,$1$~Hz and writes per-second
-comma-separated-value (CSV) rows; the same script runs for both
-groups so the observation pipeline is identical.
+Fig.~\ref{fig:arch} summarizes the implemented system. A single AWS EC2 \texttt{m5.large} instance (2~vCPU, 8~GiB RAM) hosts a lightweight K3s~\cite{rancher2024k3s} v1.30 cluster. The cluster contains three application namespaces: \texttt{rabbitmq} for the shared message broker, \texttt{baseline} for the CPU-based HPA experiment, and \texttt{keda} for the queue-length-based KEDA experiment. RabbitMQ exposes two durable queues, \texttt{baseline-queue} and \texttt{keda-queue}, so that each strategy is tested with an isolated backlog while sharing the same broker installation.
+
+A Python producer running from the evaluator's machine sends AMQP messages to either queue. During each trial, \texttt{scripts/collect-metrics.sh} polls Kubernetes and the RabbitMQ Management API~\cite{broadcom2024rabbitmq} at approximately 1~Hz. It records pod counts, pod readiness, queue depth, ingress/egress rates, and cumulative published/delivered messages into CSV files. The same collection script is used for both strategies.
 
 \begin{figure}[t]
   \centering
   \input{figures/architecture.tex}
-  \caption{End-to-end architecture on a single AWS EC2 node. The
-  consumer image is shared by both groups; the only variable between
-  them is the scaling policy attached to each Deployment.}
+  \caption{End-to-end architecture. Both experiment groups consume from RabbitMQ using the same Spring Boot image; the only controlled difference is the scaling metric.}
   \label{fig:arch}
 \end{figure}
 
 \subsection{Consumer Application}
 \label{subsec:consumer}
-Both groups run the same Spring Boot~\cite{vmware2024springboot}
-consumer image (\texttt{htasteqin/cs5296-consumer:v1.0}). Each message
-triggers a $\approx$\,$200$\,ms busy-wait so that the workload is
-CPU-bound. This is a deliberate design choice: a
-\texttt{Thread.sleep} would render HPA blind to the workload---since
-the only available signal is CPU utilisation---and would therefore
-bias the comparison before it begins. The pod resource settings are
-\texttt{requests: 100m~CPU / 256~MiB} and
-\texttt{limits: 300m~CPU / 512~MiB}.
+The consumer is a Spring Boot~\cite{vmware2024springboot} application packaged as the shared image \path{htasteqin/cs5296-consumer:v1.0}. The main processing logic is in \texttt{MessageConsumer.java}. Each message is received through a Spring AMQP \texttt{@RabbitListener}, and the handler performs about 200~ms of CPU-bound busy work before acknowledging progress through Micrometer counters and timers.
+
+This artificial CPU-bound work is intentional. If the handler used \texttt{Thread.sleep}, the queue could grow while CPU usage stayed low, making the CPU-based HPA fail for a trivial reason. By using busy work, the baseline HPA is given a real CPU signal, while KEDA is given the queue signal. The consumer pods request 100~m CPU and 256~MiB memory and are limited to 300~m CPU and 512~MiB memory. The same values appear in both the \texttt{baseline} and \texttt{keda} Deployment manifests.
 
 \subsection{Scaling Strategies}
 \label{subsec:strategies}
-The two scalers share identical \texttt{minReplicas}$\,=\,$1 and
-\texttt{maxReplicas}$\,=\,$6 (dictated by the 2\,vCPU node), together
-with an identical \texttt{behavior} block:
-
-\begin{itemize}[leftmargin=*,itemsep=0pt,topsep=1pt]
-  \item \texttt{scaleUp}: \texttt{stabilizationWindowSeconds}\,=\,0;
-        policies \texttt{Percent 100\%/15s} $\cup$
-        \texttt{Pods 4/15s}, \texttt{selectPolicy}\,=\,\texttt{Max}.
-  \item \texttt{scaleDown}: \texttt{stabilizationWindowSeconds}\,=\,60\,s;
-        policy \texttt{Percent 50\%/60s}.
+The two strategies share the same replica range and control limits. Both start with one replica and can scale to at most six replicas, a bound chosen to fit the two-vCPU single-node environment without destabilizing RabbitMQ. Both also use the same HPA \texttt{behavior} configuration:
+\begin{itemize}
+  \item \textbf{Scale-up}: no stabilisation window; maximum of \texttt{Percent 100\%/15s} and \texttt{Pods 4/15s}.
+  \item \textbf{Scale-down}: 60~s stabilisation window; \texttt{Percent 50\%/60s} removal policy.
 \end{itemize}
+Only the metric differs. The baseline HPA uses CPU utilisation with a 50\% target. KEDA uses a RabbitMQ \texttt{QueueLength} trigger with target $T=100$ messages per replica, a 5~s polling interval, and a 60~s cooldown period.
 
-\noindent Only the scaling \emph{signal} differs:
-\textbf{Baseline HPA} uses \texttt{cpu.Utilization} with a
-$50\%$ target; \textbf{KEDA} uses a \texttt{rabbitmq}
-\texttt{QueueLength} trigger with target~$T\,=\,100$
-messages/replica and \texttt{pollingInterval}\,=\,5\,s.
-
-\subsection{Control Variables}
+\subsection{Controlled Variables}
 \label{subsec:controls}
-To isolate the effect of the scaling signal we hold all non-signal
-parameters constant across the two groups: identical Docker image,
-identical \texttt{requests}/\texttt{limits}, identical
-$\approx$\,$200$\,ms per-message processing cost, a shared RabbitMQ
-broker (separate queues per group to prevent interference), the same
-EC2 node, and the same burst pattern. The only independent variable
-is therefore the scaling signal---CPU utilisation versus queue
-length.
+The experiment controls every major non-signal variable: the same Docker image, the same Spring Boot code path, the same resource requests and limits, the same per-message processing cost, the same RabbitMQ broker, the same EC2 node, the same burst traffic pattern, and the same metric-collection pipeline. This design prevents a common benchmarking mistake: comparing two autoscalers while also changing the workload, hardware, or application implementation.

@@ -1,131 +1,69 @@
 \section{Results and Analysis}
 \label{sec:results}
 
-All numbers in this section are derived from the six trial CSV files
-in \texttt{results/raw/} via \texttt{analysis/plot.py}; the full
-reproduction recipe is documented in the Artifact Appendix. Unless
-otherwise stated, means are reported with one sample standard
-deviation over $n\,=\,3$ independent trials per group.
+All results are computed from the six trial CSV files in \path{results/raw/} using the analysis script \path{analysis/plot.py}. Unless stated otherwise, each value is the mean over three runs, with one sample standard deviation. Lower values are better for latency, scale-up time, and drain time; lower final pod counts are better after the workload has stopped.
 
 \subsection{Headline Metrics}
 \label{subsec:res-summary}
-Table~\ref{tab:summary} aggregates every metric we computed.
-KEDA~(queueLength) wins on every responsiveness dimension and is the
-only scaler that visibly releases capacity during the trial.
+Table~\ref{tab:summary} shows the aggregate results. KEDA wins on all responsiveness metrics and is the only strategy that releases capacity before the observation window ends. The two strategies reach the same peak of six pods, so the difference is not maximum capacity. The difference is how early each strategy receives useful information about the burst and about the remaining backlog.
 
 \begin{table}[t]
   \centering
   \small
-  \caption{Headline metrics per group (mean $\pm$ std, $n\,=\,3$).
-  ``---'' indicates that the event did not occur within the trial
-  window ($\approx 355$\,s after burst end).}
+  \caption{Headline metrics per strategy (mean $\pm$ standard deviation, $n=3$). ``---'' means the event was not observed within the trial window.}
   \label{tab:summary}
   \begin{tabular}{lcc}
     \toprule
-    \textbf{Metric}                                  & \textbf{Baseline HPA (CPU)} & \textbf{KEDA (queueLength)} \\
+    \textbf{Metric} & \textbf{HPA: CPU signal} & \textbf{KEDA: queue signal} \\
     \midrule
     \multicolumn{3}{l}{\emph{Responsiveness}} \\
-    Reaction latency (s)                             & $73.8 \pm 8.3$        & $\mathbf{63.4 \pm 3.4}$ \\
-    Scale-up time to peak (s)                        & $90.2 \pm 4.6$        & $\mathbf{80.2 \pm 5.1}$ \\
-    Queue drain time (s)                             & $309.7 \pm 5.2$       & $\mathbf{297.6 \pm 5.6}$ \\
+    Reaction latency (s)                  & $73.8 \pm 8.3$   & $\mathbf{63.4 \pm 3.4}$ \\
+    Time to peak pods (s)                 & $90.2 \pm 4.6$   & $\mathbf{80.2 \pm 5.1}$ \\
+    Queue drain time (s)                  & $309.7 \pm 5.2$  & $\mathbf{297.6 \pm 5.6}$ \\
     \midrule
     \multicolumn{3}{l}{\emph{User-visible effect}} \\
-    Average throughput during drain (msg/s)          & $22.75 \pm 0.27$      & $\mathbf{23.35 \pm 0.27}$ \\
-    Messages delivered per trial                     & $7\,451 \pm 57$       & $7\,212 \pm 90$ \\
+    Avg. throughput during drain (msg/s)  & $22.75 \pm 0.27$ & $\mathbf{23.35 \pm 0.27}$ \\
+    Messages delivered per trial          & $7\,451 \pm 57$  & $7\,212 \pm 90$ \\
     \midrule
-    \multicolumn{3}{l}{\emph{Resource utilisation}} \\
-    Scale-down start (s after burst end)             & \emph{---} (not observed) & $\mathbf{326.9 \pm 3.1}$ \\
-    Ready pods at trial end ($\approx$ burst$+355$\,s) & $6.0$                & $\mathbf{3.0}$ \\
-    Pod-seconds overshoot                             & $1\,426 \pm 27$      & $\mathbf{1\,415 \pm 7}$ \\
-    Peak pod count (\texttt{maxReplicas})             & $6$                  & $6$ \\
+    \multicolumn{3}{l}{\emph{Resource use}} \\
+    First scale-down (s after burst end)  & ---              & $\mathbf{326.9 \pm 3.1}$ \\
+    Ready pods at trial end               & $6.0$            & $\mathbf{3.0}$ \\
+    Pod-seconds overshoot                 & $1\,426 \pm 27$  & $\mathbf{1\,415 \pm 7}$ \\
+    Peak pod count                        & $6$              & $6$ \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-Because the realised burst size varies slightly with producer-side
-publishing speed, \texttt{messages\_delivered} is descriptive only; the
-more comparable user-visible outcomes are queue drain time and average
-throughput, which are normalised over the observed run.
+The total delivered-message count should be interpreted as descriptive rather than as a direct performance score, because the actual number of messages published varies slightly with producer-side timing. Queue-drain time and delivery throughput are more comparable across runs because they normalize behaviour over the observed drain period.
 
 \subsection{Responsiveness}
 \label{subsec:res-response}
-Fig.~\ref{fig:response} summarises the three responsiveness metrics.
-Relative to the Baseline HPA (CPU), KEDA (queueLength) reacts
-$10.4$\,s earlier on average (a $14\%$ reduction), reaches peak
-replicas $10$\,s earlier, and drains the backlog $12$\,s earlier.
-The standard deviation of the reaction latency is also markedly
-smaller for KEDA ($3.4$\,s) than for the Baseline HPA ($8.3$\,s):
-the queue-length signal produces a more predictable response across
-trials.
+Fig.~\ref{fig:response} visualizes the three latency-style metrics. Compared with the CPU-based HPA, KEDA reacts 10.4~s earlier on average, which is a 14\% reduction in reaction latency. It also reaches the maximum useful replica count about 10~s earlier and clears the queue 12.2~s earlier. These differences are operationally meaningful: in a queue-backed service, every second of delayed scale-out allows the backlog to grow further.
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=\linewidth]{../results/figures/fig4-response-bar.png}
-  \caption{Responsiveness metrics: time to the first new Ready pod,
-  time to peak pods, and time to queue drain. Lower is better; error
-  bars show one sample standard deviation.}
+  \includegraphics[width=0.93\linewidth]{../results/figures/fig4-response-bar.png}
+  \caption{Responsiveness metrics. KEDA responds earlier because queue length is visible as soon as backlog forms, while CPU-based HPA waits for resource metrics to cross the target.}
   \label{fig:response}
 \end{figure}
 
-\paragraph{Per-run evidence.}~The three paired timeline figures
-archived under \texttt{results/figures/} show the same qualitative
-pattern in every matched run: KEDA reaches $5$--$6$ Ready pods first
-(lead: $5$--$20$\,s), its queue-depth curve remains below the
-Baseline HPA during the drain, and it is the only scaler that triggers
-pod removal before the observation ends. The aggregate bars in
-Fig.~\ref{fig:response} summarise this run-level pattern compactly.
+The per-run timeline figures in \texttt{results/figures/} show the same pattern in every matched run. KEDA reaches 5--6 Ready pods first, its queue-depth curve stays below the baseline HPA during the drain, and only KEDA removes pods before the trial ends. The aggregate bar chart therefore reflects a consistent run-level pattern rather than a single outlier.
 
 \subsection{Scale-down Behaviour}
 \label{subsec:res-scaledown}
-Fig.~\ref{fig:scaledown} presents the most pronounced contrast of the
-experiment. Recall from Section~\ref{subsec:strategies} that both
-groups share identical \texttt{scaleDown} parameters
-(\texttt{stabilizationWindowSeconds}\,=\,60\,s and
-\texttt{Percent~50\%/60s}). Despite this parity, the Baseline HPA
-failed to remove any pod in all three trials, whereas KEDA began
-shrinking the replica set $326.9 \pm 3.1$\,s after the burst ended
-and had returned half the fleet by the time the trial concluded.
+The strongest qualitative difference appears after the burst stops. Fig.~\ref{fig:scaledown} shows that the baseline HPA does not scale down in any trial, while KEDA starts removing pods about 327~s after the burst ends and reaches three Ready pods by the end of the observation window. This is notable because both strategies use the same 60~s scale-down stabilisation window and the same 50\%/60~s removal policy.
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=\linewidth]{../results/figures/fig5-scale-down-bar.png}
-  \caption{Scale-down behaviour. (a) Elapsed time from burst end to
-  the first pod removal. The hatched bar marks the Baseline HPA's
-  non-event: scale-down did not occur during the trial because the
-  CPU signal remained above the $50\%$ target throughout. (b) Number
-  of Ready pods remaining at the end of the trial.}
+  \includegraphics[width=0.93\linewidth]{../results/figures/fig5-scale-down-bar.png}
+  \caption{Scale-down behaviour. The CPU-based HPA remains at six pods during the trial, while KEDA begins returning capacity once queue depth falls sufficiently.}
   \label{fig:scaledown}
 \end{figure}
 
-\paragraph{Why the Baseline HPA cannot shrink.}~The cause is not the
-\texttt{behavior} block but the scaling \emph{signal}. The consumer is
-CPU-bound with a $200$\,ms busy-wait per message, so throughout the
-drain its CPU usage is pinned at its \texttt{limits.cpu}\,=\,$300$\,m.
-Because the HPA computes utilisation as
-$m_\mathrm{current}\,=\,\mathrm{usage}/\mathrm{requests.cpu}$ with
-\texttt{requests.cpu}\,=\,$100$\,m, the reported utilisation is
-$3\times$ the $50\%$ target for the entire drain phase. Eq.~\ref{eq:hpa}
-therefore produces $n_\mathrm{desired}$ saturated at
-\texttt{maxReplicas}\,=\,$6$ until the queue becomes empty
-($\approx\,310$\,s post-burst) and each pod falls idle---a transition
-that occurs only after the $\approx\,355$\,s trial window has
-closed.
+\textbf{Why HPA cannot shrink in the observed window.} The consumer is CPU-bound, and each pod is limited to 300~m CPU while requesting 100~m. As long as a pod has messages to process, it can remain close to the CPU limit. The HPA therefore observes utilisation near $300\%$ of the CPU request, far above the 50\% target. Substituting that ratio into Eq.~\ref{eq:hpa} keeps the desired replica count clamped at \texttt{maxReplicas}=6 until the queue is almost empty. In other words, the CPU signal tells HPA that the pods are busy, but it does not tell HPA that the backlog is already shrinking.
 
-\paragraph{Why KEDA shrinks.}~Under KEDA's queueLength trigger,
-$n_\mathrm{desired}\,=\,\lceil Q / T \rceil$ with $T\,=\,100$, so the
-desired replica count decreases monotonically as $Q$ does. In every
-trial the queue fell below $500$\,messages approximately $270$\,s
-after burst end, at which point $n_\mathrm{desired}$ dropped below
-$6$; after the mandatory $60$\,s stabilisation window the first pod
-was reaped. KEDA thus captures backlog reduction \emph{while it is
-in flight}, whereas the Baseline HPA can only observe it \emph{after}
-the backlog is gone.
+\textbf{Why KEDA shrinks earlier.} KEDA observes the queue directly. With the target $T=100$ messages per replica, the desired replica count decreases as $Q$ decreases. Once the queue has dropped far enough, KEDA can recommend fewer than six pods, and the shared 60~s stabilisation window delays but does not prevent the downscale. This is the key technical lesson of the experiment: using an event signal changes not only scale-up timing but also the ability to detect when extra capacity is no longer needed.
 
-\paragraph{Within-window cost.}~The pod-seconds overshoot remains close
-between the two groups ($1\,426 \pm 27$ versus $1\,415 \pm 7$
-pod$\cdot$s, a gap below $1\%$) because both scalers hit the same peak
-of six pods and most of the trial is spent draining the burst. The
-economic advantage of KEDA therefore appears first in the tail: it
-starts returning pods earlier, but a longer post-drain observation
-window would be needed for that lead to accumulate into a large
-overshoot gap.
+\subsection{Resource Cost Interpretation}
+\label{subsec:res-cost}
+The pod-seconds overshoot is similar for the two strategies: $1\,426 \pm 27$ for HPA and $1\,415 \pm 7$ for KEDA. This does not contradict the scale-down result. Both strategies quickly reach the same six-pod cap, and most of the trial is spent processing the burst, so the cost curves are similar over this short window. KEDA's cost advantage appears in the tail because it starts returning pods earlier. A longer post-drain observation period would likely enlarge the pod-seconds gap.

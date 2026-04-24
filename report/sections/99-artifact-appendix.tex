@@ -2,77 +2,83 @@
 \section*{Artifact Appendix}
 \addcontentsline{toc}{section}{Artifact Appendix}
 
-\subsection*{A.1 Abstract}
-The artifact is a self-contained set of scripts and Kubernetes
-manifests that (i)~provisions a single-node K3s cluster on an AWS
-EC2 \texttt{m5.large} instance, (ii)~deploys two identical Spring
-Boot consumers scaled by the Baseline HPA and by KEDA respectively,
-(iii)~injects a burst workload via a Python producer and records
-per-second metrics, and (iv)~produces six summary figures and a
-headline CSV. A short shell loop around
-\texttt{scripts/run-experiment.sh} reproduces the six formal trials.
+\subsection*{A.1 Artifact Overview}
+This appendix describes how to reproduce the project. The artifact contains the Spring Boot consumer, RabbitMQ and Kubernetes manifests, HPA and KEDA scaling policies, Python load-generation scripts, shell scripts for deployment and data collection, raw experimental CSV files, and Python analysis scripts that regenerate the figures and summary table.
 
-\subsection*{A.2 Check-list}
-\begin{itemize}[leftmargin=*,itemsep=0pt]
-  \item \emph{Compilation}: Maven~3.9; Docker~24.x (or Colima);
-        \texttt{docker buildx} for multi-architecture builds.
-  \item \emph{Run-time}: Ubuntu~22.04~LTS; K3s v1.30; Java~17;
-        Python~3.10+.
-  \item \emph{Hardware}: AWS EC2 \texttt{m5.large} ($2$\,vCPU,
-        $8$\,GiB RAM); \texttt{t3.medium} is also viable provided
-        that \texttt{maxReplicas} remains $\le 6$.
-  \item \emph{Execution}: $\approx\,49$\,min of wall time for
-        the $6$ trials, plus $120$\,s of cooldown between trials.
-  \item \emph{Output}: $12$ per-trial CSVs in \texttt{results/raw/},
-        one aggregated \texttt{summary.csv}, and six PNG figures in
-        \texttt{results/figures/}.
-  \item \emph{Licence}: MIT, publicly available on GitHub.
+\subsection*{A.2 Hardware and Software Dependencies}
+\begin{itemize}
+  \item \textbf{Cloud host}: AWS EC2 \texttt{m5.large} with Ubuntu~22.04~LTS. A \texttt{t3.medium} can be used for smoke testing, but the reported experiments use \texttt{m5.large}.
+  \item \textbf{Cluster stack}: K3s v1.30, Helm~3, \texttt{metrics-server} v0.7, KEDA v2.13, and RabbitMQ \texttt{3.12-management}.
+  \item \textbf{Build tools}: Java~17, Maven~3.9, Docker~24.x or compatible Docker Buildx environment.
+  \item \textbf{Load-test tools}: Python~3.10+ with \texttt{pika}, \texttt{click}, and \texttt{PyYAML} as listed in the load-test requirements file.
+  \item \textbf{Analysis tools}: Python~3.10+ with \texttt{pandas} and \texttt{matplotlib} as listed in the analysis requirements file.
 \end{itemize}
 
-\subsection*{A.3 How to access}
-Source code, raw data, and figures:
-\url{https://github.com/QinHaoting/CS5296-Group5-Autoscaling}.
+\subsection*{A.3 Repository}
+The public repository is:
+\begin{center}
+\url{https://github.com/QinHaoting/CS5296-Group5-Autoscaling}
+\end{center}
 
-\subsection*{A.4 Installation and deployment}
-\begin{enumerate}[leftmargin=*,itemsep=0pt]
-  \item Build and push the consumer image:\\
-        \texttt{docker buildx build --platform linux/amd64} \\
-        \texttt{\ \ -t \textlangle dockerhub\textrangle/cs5296-consumer:v1.0 --push consumer/}
-  \item On the EC2 node, \texttt{bash scripts/setup.sh} installs
-        K3s, Helm, \texttt{metrics-server}, KEDA, and the
-        repository-owned RabbitMQ manifests.
-  \item Apply the two scaling policies:\\
-        \texttt{export CONSUMER\_IMAGE=\textlangle image\textrangle} \\
-        \texttt{bash scripts/deploy-baseline.sh \&\& \\
-        bash scripts/deploy-keda.sh}
+Key directories are:
+\begin{itemize}
+  \item \texttt{consumer/}: Spring Boot RabbitMQ consumer.
+  \item \texttt{k8s/}: namespaces, RabbitMQ, HPA baseline, and KEDA manifests.
+  \item \texttt{load-test/}: workload producer and YAML traffic patterns.
+  \item \texttt{scripts/}: setup, deployment, collection, run, and teardown scripts.
+  \item \texttt{results/}: raw CSV data, generated figures, and \texttt{summary.csv}.
+  \item \texttt{analysis/}: scripts for metric extraction and plotting.
+\end{itemize}
+
+\subsection*{A.4 Build and Deployment}
+\begin{enumerate}
+  \item Build and push the consumer image:
+\begin{verbatim}
+docker buildx build --platform linux/amd64 \
+  -t <dockerhub>/cs5296-consumer:v1.0 --push consumer/
+\end{verbatim}
+  \item On the EC2 node, install the cluster dependencies and base services:
+\begin{verbatim}
+bash scripts/setup.sh
+\end{verbatim}
+  \item Deploy both experiment groups:
+\begin{verbatim}
+export CONSUMER_IMAGE=<dockerhub>/cs5296-consumer:v1.0
+bash scripts/deploy-baseline.sh
+bash scripts/deploy-keda.sh
+\end{verbatim}
+  \item Confirm that RabbitMQ, the consumers, HPA, and KEDA are running:
+\begin{verbatim}
+kubectl get pods -A
+kubectl -n baseline get hpa
+kubectl -n keda get scaledobject,hpa
+\end{verbatim}
 \end{enumerate}
 
-\subsection*{A.5 Experiment workflow}
+\subsection*{A.5 Running the Experiments}
+Run one trial for each strategy:
 \begin{verbatim}
-# Single trial, either group:
 bash scripts/run-experiment.sh baseline 1
-bash scripts/run-experiment.sh keda     1
-
-# Full batch (3 runs per group):
-for run in 1 2 3; do bash scripts/run-experiment.sh baseline "$run"; done
-for run in 1 2 3; do bash scripts/run-experiment.sh keda "$run"; done
-
-# Offline analysis on the evaluator's laptop:
-python analysis/plot.py
+bash scripts/run-experiment.sh keda 1
 \end{verbatim}
 
-\subsection*{A.6 Expected result}
-Six PNG figures (\texttt{fig1-run1-timeline.png} through
-\texttt{fig3-run3-timeline.png} for per-run timelines, and
-\texttt{fig4-response-bar.png}, \texttt{fig5-scale-down-bar.png},
-\texttt{fig6-overshoot-cost.png} for the aggregates), together with
-a \texttt{summary.csv} containing $10$ metrics per trial. KEDA
-reacts $\approx\,10$\,s faster than the Baseline HPA, drains the
-queue $\approx\,12$\,s sooner, and is the only scaler to trigger
-scale-down during the trial.
+Run the full three-trial batch:
+\begin{verbatim}
+for run in 1 2 3; do bash scripts/run-experiment.sh baseline "$run"; done
+for run in 1 2 3; do bash scripts/run-experiment.sh keda "$run"; done
+\end{verbatim}
 
-\subsection*{A.7 Troubleshooting}
-Full diagnostics appear in \texttt{docs/ARTIFACT.md} and in
-the detailed execution manual under the course planning folder
-(\texttt{Group/plan/}), especially its execution log and formal
-experiment narrative appendices.
+Each trial resets the Deployment to one replica, purges the target queue, records a short baseline, runs the burst producer, and keeps collecting metrics during the post-burst drain period. The full six-trial batch takes about 49 minutes, excluding manual setup time.
+
+\subsection*{A.6 Reproducing the Figures}
+After the raw CSV files exist, regenerate the summary and figures with:
+\begin{verbatim}
+python analysis/plot.py
+\end{verbatim}
+Expected outputs include \texttt{summary.csv}, three per-run timeline figures, and the aggregate figures for responsiveness, scale-down behaviour, and pod-seconds overshoot.
+
+\subsection*{A.7 Expected Results}
+The regenerated \texttt{summary.csv} should show that KEDA reacts approximately 10~s faster than the CPU-based HPA, drains the queue approximately 12~s sooner, and triggers scale-down during the trial. The exact numbers may vary slightly with EC2 performance, RabbitMQ startup time, and producer-side timing, but the qualitative result should remain: queue-length-based scaling reacts earlier and releases capacity earlier for this queue-backed workload.
+
+\subsection*{A.8 Troubleshooting}
+Additional operational notes are in \texttt{docs/RUNBOOK.md}. Common checks include verifying the RabbitMQ NodePort, confirming that the two queues are empty before each trial, ensuring \texttt{metrics-server} is reporting CPU metrics, and checking that the KEDA \texttt{ScaledObject} has an active RabbitMQ trigger.
