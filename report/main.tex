@@ -1,23 +1,25 @@
 % ====================================================================
 % CS5296 Cloud Computing -- Spring 2026 -- Group 5 final report
 %
-% Compliant with the course style: A4, single column, single spaced,
-% 12 pt Times New Roman. Page budget: 9 pages including references,
-% excluding the Artifact Appendix.
+% Course-compliant layout: A4, single column, single spaced,
+% 12 pt Times-compatible font. Page budget: 9 pages including
+% references and excluding the Artifact Appendix.
 % ====================================================================
 
 \documentclass[a4paper,12pt]{article}
 
-% --- Packages ---
+% --- Packages ---------------------------------------------------------
 \usepackage[margin=1in]{geometry}
-\usepackage{mathptmx}                 % Times New Roman for text & math
+\usepackage{mathptmx}                 % Times-compatible text and math
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[english]{babel}
 \usepackage{graphicx}
 \usepackage{booktabs}
+\usepackage{array}
 \usepackage{hyperref}
 \usepackage{url}
+\usepackage{xurl}
 \usepackage{cite}
 \usepackage{xcolor}
 \usepackage{caption}
@@ -29,14 +31,16 @@
 \usepackage{amsmath}
 \usepackage{microtype}
 
-% --- Layout tweaks ---
+% --- Layout -----------------------------------------------------------
 \setlength{\parskip}{2pt}
 \setlength{\parindent}{0pt}
-\setlength{\textfloatsep}{8pt plus 2pt minus 2pt}
-\setlength{\floatsep}{8pt plus 2pt minus 2pt}
-\setlength{\intextsep}{8pt plus 2pt minus 2pt}
+\setlength{\textfloatsep}{7pt plus 2pt minus 2pt}
+\setlength{\floatsep}{7pt plus 2pt minus 2pt}
+\setlength{\intextsep}{7pt plus 2pt minus 2pt}
 \setlength{\abovecaptionskip}{4pt}
 \setlength{\belowcaptionskip}{2pt}
+\setlist{nosep,leftmargin=*}
+\emergencystretch=2em
 \hypersetup{
   colorlinks = true,
   linkcolor  = blue!50!black,
@@ -44,20 +48,24 @@
   urlcolor   = blue!50!black,
 }
 
-% --- IEEE-style numbering for sections, subsections and tables ------
+% --- Section/table numbering ----------------------------------------
 \renewcommand{\thesection}{\Roman{section}}
 \renewcommand{\thesubsection}{\thesection-\Alph{subsection}}
 \renewcommand{\thetable}{\Roman{table}}
-
-% --- Figure/table caption style (IEEE convention: bold label, then ".") ---
 \captionsetup{labelfont=bf, labelsep=period, font=small}
 
-% --- Title block --------------------------------------------------------
-\title{\textbf{Baseline vs.\ Event-Driven Autoscaling in Kubernetes: \\
-A Controlled Comparison of HPA and KEDA for a Queue-Backed Microservice}}
+% --- Title block ------------------------------------------------------
+\title{\textbf{Baseline vs. Event-Driven Autoscaling in Kubernetes:\\
+A Controlled Study of HPA and KEDA for a Queue-Backed Microservice}}
 \author{%
-  Group~5 \\
-  \small CS5296 Cloud Computing, Spring 2026, City University of Hong Kong%
+  Group~5\\[-1mm]
+  \small CS5296 Cloud Computing, Spring 2026, City University of Hong Kong\\[1.5mm]
+  \small
+  \begin{tabular}{>{\bfseries}l l}
+    ZHAO Yinhuan & SID: 59546734 \\
+    QIN Haoting  & SID: 60023963 \\
+    ZHANG Weiyi  & SID: 59747335
+  \end{tabular}%
 }
 \date{April 2026}
 
@@ -73,11 +81,11 @@ A Controlled Comparison of HPA and KEDA for a Queue-Backed Microservice}}
 \input{sections/06-discussion}
 \input{sections/07-conclusion}
 
-% --- References ---------------------------------------------------------
+% --- References -------------------------------------------------------
 \bibliographystyle{IEEEtran}
 \bibliography{references}
 
-% --- Artifact Appendix (does not count towards the 9-page limit) --------
+% --- Artifact Appendix (excluded from the 9-page report budget) -------
 \clearpage
 \input{sections/99-artifact-appendix}
 
