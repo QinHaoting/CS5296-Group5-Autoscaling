@@ -1,60 +1,16 @@
 \section{Introduction}
 \label{sec:intro}
 
-Elasticity is a defining property of cloud computing~\cite{mell2011nist}:
-cloud-hosted applications acquire additional compute capacity when
-demand rises and release it when demand falls. In contemporary
-asynchronous architectures, that demand typically arrives through
-message queues---for example, the order-ingestion pipelines behind
-e-commerce flash sales, telemetry fan-in from Internet-of-Things
-fleets, or job bursts in machine-learning inference back-ends.
-Whenever the backlog grows, the service consuming those messages must
-scale out \emph{before} the queue becomes deep enough to breach
-service-level objectives.
+Elasticity is a core promise of cloud computing~\cite{mell2011nist}: applications should add capacity when demand rises and release it when demand falls. In many modern systems, demand does not arrive only as direct HTTP requests. It is often buffered through message queues, such as order-processing jobs during an e-commerce flash sale, telemetry events from Internet-of-Things devices, or asynchronous tasks in a machine-learning inference pipeline. In these workloads, the queue depth is an immediate measure of unfinished work. If the consumer deployment reacts late, users may experience long processing delays even though the cluster eventually scales out.
 
-Kubernetes~\cite{kubernetes2024} has become the de facto container
-orchestrator and ships with the \emph{Horizontal Pod Autoscaler}
-(HPA)~\cite{kubernetes2024hpa}, which adjusts a Deployment's replica
-count so that the observed CPU or memory utilisation approaches an
-operator-specified target. CPU, however, is a \emph{lagging} indicator
-for queue-backed workloads: by the time it crosses the scaling
-threshold, the backlog may already be large, and in resource-capped
-pods the reported utilisation can be driven entirely by the
-\texttt{limits.cpu}/\texttt{requests.cpu} ratio rather than by the
-actual workload. Kubernetes Event-Driven Autoscaling
-(KEDA)~\cite{keda2024}, a Cloud Native Computing Foundation (CNCF)
-graduated project, addresses this limitation by allowing operators to
-scale directly on business metrics such as RabbitMQ queue length.
-Internally KEDA materialises a hidden HPA and feeds it the external
-metric, so the underlying control loop is identical---only the signal
-differs.
+Kubernetes~\cite{kubernetes2024} provides the Horizontal Pod Autoscaler (HPA), which adjusts a Deployment's replica count so that a selected resource metric, usually CPU or memory utilisation, approaches a target value~\cite{kubernetes2024hpa}. HPA is simple and widely available, but CPU is an indirect and sometimes delayed signal for a queue-backed service. A consumer can be CPU-saturated while the backlog is either growing rapidly or almost drained; CPU alone does not tell the autoscaler how much work remains in the queue.
 
-\textbf{Research question.}~\emph{Given an identical queue-backed
-consumer under a flash-crowd workload, how do Baseline HPA (CPU signal)
-and KEDA (queueLength signal) differ along three axes---responsiveness,
-user-visible effect, and resource utilisation---once all other
-scaling parameters are held equal?}
+Kubernetes Event-Driven Autoscaling (KEDA)~\cite{keda2024} offers a different approach. Instead of asking only how busy the pods are, KEDA can ask how much work is waiting outside the pods. For RabbitMQ, KEDA can scale a consumer directly from queue length. Internally, KEDA still creates an HPA object, but the metric fed into the HPA is an external business metric rather than a CPU metric. This makes KEDA a useful comparison point for event-driven cloud workloads.
 
-\textbf{Contributions.}~This paper makes three contributions:
-\begin{itemize}[leftmargin=*,itemsep=0pt,topsep=2pt]
-  \item A reproducible benchmarking harness, open-sourced on
-        GitHub~\cite{group5artifact2026}, that provisions a K3s cluster
-        on a single AWS EC2 \texttt{m5.large} node, deploys two
-        identical Spring Boot consumers, and injects a configurable
-        burst workload via RabbitMQ.
-  \item A controlled comparison of Baseline HPA and KEDA across three
-        metric axes, covering both scale-up and scale-down behaviour,
-        with every experimental variable fixed except the scaling
-        signal.
-  \item A quantitative explanation of why the Baseline HPA cannot shrink
-        the replica set within the trial window: the CPU signal remains
-        pinned at the pod's \texttt{limits.cpu} throughout the drain and
-        therefore does not descend until \emph{after} the queue is empty.
-\end{itemize}
+\textbf{Project nature and research question.} This is a technical cloud-computing project: we implement and evaluate existing autoscaling mechanisms rather than proposing a new autoscaling algorithm. The central question is: \emph{for the same RabbitMQ-backed consumer and the same burst workload, how do CPU-based HPA and queue-length-based KEDA differ in scale-up responsiveness, queue-drain performance, and scale-down behaviour?}
 
-\textbf{Roadmap.}~Section~\ref{sec:background} reviews the HPA and KEDA
-control loops. Section~\ref{sec:design} describes our system design.
-Section~\ref{sec:setup} documents the experimental methodology.
-Section~\ref{sec:results} presents the measurements.
-Section~\ref{sec:discussion} discusses practitioner implications, and
-Section~\ref{sec:conclusion} concludes.
+\textbf{Methodology.} We built a complete reproducibility artifact on GitHub~\cite{group5artifact2026}. The artifact deploys RabbitMQ, a Spring Boot consumer, HPA/KEDA policies, a Python load generator, and metric-collection scripts on a single-node K3s cluster. To make the comparison fair, both strategies use the same Docker image, CPU and memory requests/limits, minimum and maximum replica counts, and HPA \texttt{behavior} rules. The only independent variable is the signal used for scaling: CPU utilisation for HPA and RabbitMQ queue length for KEDA.
+
+\textbf{Main findings.} KEDA reacts earlier, reaches useful capacity sooner, drains the queue faster, and is the only strategy that scales down during the observed post-burst window. The main reason is not that KEDA uses a more aggressive control loop. It uses a better signal for this workload. Queue length decreases continuously as work is completed, while CPU remains pinned near the pod limit as long as any backlog remains.
+
+The rest of this report is organized as follows. Section~\ref{sec:background} reviews HPA and KEDA. Section~\ref{sec:design} presents the implemented system. Section~\ref{sec:setup} describes the experiment. Section~\ref{sec:results} analyzes the results. Section~\ref{sec:discussion} discusses implications and limitations, and Section~\ref{sec:conclusion} concludes.
