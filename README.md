@@ -48,7 +48,7 @@ Only two things are compared. That's why every K8s sub-directory, every script a
 - AWS EC2 `m5.large` (2 vCPU / 8 GiB), Ubuntu Server 22.04 LTS amd64, 40 GiB gp3
 - Security group inbound ports: `22`, `6443`, `15672`, and `30000-32767`
 - Docker 24.x on your dev machine
-- A public Docker registry (DockerHub or ECR) for the consumer image
+- Consumer image: [`htasteqin/cs5296-consumer:v1.0`](https://hub.docker.com/r/htasteqin/cs5296-consumer)
 - `kubectl`, `helm`, `curl`, `jq` on the cluster host
 - Python 3.10+ for load testing and analysis
 - Java 17 + Maven 3.9+ if you rebuild the consumer locally
@@ -62,14 +62,14 @@ trials for each scaling strategy.
 ### 1. Checkout and shell variables
 
 ```bash
-git clone https://github.com/<your-org>/CS5296-Group5-Autoscaling.git
+git clone https://github.com/QinHaoting/CS5296-Group5-Autoscaling.git
 cd CS5296-Group5-Autoscaling
 git checkout master
 
 cp .env.example .env
 # Edit .env for your notes, then export the values used by the scripts:
 export CS5296_REPO="$PWD"
-export DOCKERHUB_USER="<your-dockerhub-user>"
+export DOCKERHUB_USER="htasteqin"
 export CONSUMER_IMAGE="${DOCKERHUB_USER}/cs5296-consumer:v1.0"
 export EC2_IP="<your-ec2-public-ip>"
 ```
@@ -93,7 +93,7 @@ ssh -i ~/cs5296-key.pem ubuntu@$EC2_IP
 sudo apt-get update
 sudo apt-get install -y git curl jq python3-venv tmux
 
-git clone https://github.com/<your-org>/CS5296-Group5-Autoscaling.git ~/CS5296-Group5-Autoscaling
+git clone https://github.com/QinHaoting/CS5296-Group5-Autoscaling.git ~/CS5296-Group5-Autoscaling
 export CS5296_REPO="$HOME/CS5296-Group5-Autoscaling"
 cd "$CS5296_REPO"
 bash scripts/setup.sh
@@ -102,10 +102,17 @@ bash scripts/setup.sh
 `scripts/setup.sh` installs K3s, Helm, metrics-server, KEDA, namespaces, and
 the shared RabbitMQ StatefulSet.
 
-### 3. Build and push the consumer image
+### 3. Use or rebuild the consumer image
 
-Run this on the machine that has Docker and Maven. The explicit platform is
-required when building from Apple Silicon because the EC2 node is `linux/amd64`.
+For direct reproduction, use the published DockerHub image:
+
+```bash
+export CONSUMER_IMAGE="htasteqin/cs5296-consumer:v1.0"
+```
+
+If you need to rebuild the consumer image, run this on the machine that has
+Docker and Maven. The explicit platform is required when building from Apple
+Silicon because the EC2 node is `linux/amd64`.
 
 ```bash
 cd "$CS5296_REPO/consumer"
@@ -135,7 +142,7 @@ rm k8s/baseline/deployment.yaml.bak k8s/keda/deployment.yaml.bak
 
 ```bash
 export CS5296_REPO="$HOME/CS5296-Group5-Autoscaling"
-export CONSUMER_IMAGE="<your-dockerhub-user>/cs5296-consumer:v1.0"
+export CONSUMER_IMAGE="htasteqin/cs5296-consumer:v1.0"
 cd "$CS5296_REPO"
 
 bash scripts/deploy-baseline.sh
