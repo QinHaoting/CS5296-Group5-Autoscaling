@@ -31,6 +31,10 @@ REQUIRED_COLUMNS = {
     "deliver_total",
     "publish_total",
 }
+# cpu_avg_m (per-pod average CPU in millicores) is optional: the RabbitMQ + pod
+# signals are enough to score the headline metrics, but when present it lets us
+# visualise HPA's CPU-based trigger crossing 50 %.
+OPTIONAL_COLUMNS = {"cpu_avg_m"}
 
 
 @dataclass

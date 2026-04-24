@@ -60,14 +60,18 @@ spec:
             httpGet:
               path: /actuator/health/readiness
               port: 8080
-            initialDelaySeconds: 10
+            initialDelaySeconds: 45
             periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 6
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness
               port: 8080
-            initialDelaySeconds: 30
+            initialDelaySeconds: 90
             periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 6
 ---
 # The consumer image expects RabbitMQ credentials in its own namespace, so
 # copy the secret into baseline as well.
